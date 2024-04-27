@@ -4,6 +4,7 @@ import prod.prog.actionProperties.print.PrintDebug
 import prod.prog.actionProperties.print.PrintError
 import prod.prog.actionProperties.print.PrintInfo
 import prod.prog.request.Request
+import prod.prog.request.RequestContext
 import prod.prog.request.resultHandler.IgnoreErrorHandler
 import prod.prog.request.resultHandler.IgnoreHandler
 import prod.prog.request.source.ConstantSource
@@ -22,11 +23,11 @@ fun main() {
     // внутри Solver<Action> будут использоваться "тэги" - интерфейсы из package actionProperties
     // тут для примера я привёл логгинг, но поведение может быть сколь угодно сложным
     val supervisor = Supervisor(
-        before = LoggerSolver(logger, "started ", PrintError),
+        before = LoggerSolver(logger, "started ", PrintError()),
         // Два Solver можно последовательно соединить
-        after = LoggerSolver(logger, "finished", PrintDebug)
-            .andThen(LoggerSolver(logger, "after   ", PrintError)),
-        onRegister = SetUniqueIdRequestSolver()
+        after = LoggerSolver(logger, "finished", PrintDebug())
+            .andThen(LoggerSolver(logger, "after   ", PrintError())),
+        initContext = SetUniqueIdRequestSolver()
     )
 
     // создаём Request
@@ -36,13 +37,13 @@ fun main() {
         //    вывод уровня Error напечатают все 3 логгера, а Debug только finished
         object : IgnoreHandler<Int>(), PrintError {
             override fun message() = "IgnoreHandler"
-            override var id: Long = 0
         },
-        IgnoreErrorHandler()
+        IgnoreErrorHandler(),
+        RequestContext()
     )
 
     // в выводе видно, что результат пришёл до начала срабатывания Handler
-    logger.log(PrintInfo, "result: ${request.run(supervisor).get()}")
+    logger.log(PrintInfo(), "result: ${request.run(supervisor).get()}")
 
     Thread.sleep(1_000)
 
@@ -50,12 +51,12 @@ fun main() {
     // теперь будет печататься только IgnoreHandler с уровнем Error
     supervisor.after = EmptySolver()
 
-    logger.log(PrintInfo, "result: ${request.run(supervisor).get()}")
+    logger.log(PrintInfo(), "result: ${request.run(supervisor).get()}")
 
     Thread.sleep(1_000)
 
-    supervisor.before = LoggerSolver(logger, "started ", PrintDebug)
-    supervisor.after = LoggerSolver(logger, "finished", PrintDebug)
+    supervisor.before = LoggerSolver(logger, "started ", PrintDebug())
+    supervisor.after = LoggerSolver(logger, "finished", PrintDebug())
 
     val telegramBot = TelegramBot(supervisor, logger)
     telegramBot.start()

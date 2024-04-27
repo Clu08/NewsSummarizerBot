@@ -1,6 +1,6 @@
 package prod.prog.actionProperties
 
 interface Action {
-    var id: Long
-    var createdBy: String
+    fun addContext(context: ActionContext): ActionWithContext<Action> =
+        ActionWithContext(context, this)
 }

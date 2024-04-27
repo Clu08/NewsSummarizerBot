@@ -13,9 +13,14 @@ data class Request<T, R>(
     var transformer: Transformer<T, R>,
     var resultHandler: ResultHandler<R>,
     var errorHandler: ResultHandler<Throwable>,
+    var requestContext: RequestContext,
 ) {
     fun run(supervisor: Supervisor): CompletableFuture<R> {
-        val (source, transformer, resultHandler, errorHandler) = supervisor.register(this)
+        val newContext = supervisor.initContext(requestContext)
+        val source = source.addContext(newContext.sourceContext)
+        val transformer = transformer.addContext(newContext.transformerContext)
+        val resultHandler = resultHandler.addContext(newContext.resultHandlerContext)
+        val errorHandler = errorHandler.addContext(newContext.errorHandlerContext)
 
         supervisor.before(source)
         return source()

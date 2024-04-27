@@ -1,7 +1,7 @@
 package prod.prog.request.transformer
 
-import prod.prog.actionProperties.ActionClass
+import prod.prog.actionProperties.Action
 
-abstract class Transformer<T, R> : ActionClass() {
-    abstract operator fun invoke(t: T): R
+interface Transformer<T, R> : Action {
+    operator fun invoke(t: T): R
 }

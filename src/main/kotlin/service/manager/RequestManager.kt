@@ -1,6 +1,7 @@
 package prod.prog.service.manager
 
 import prod.prog.request.Request
+import prod.prog.request.RequestContext
 import prod.prog.request.resultHandler.ResultHandler
 import prod.prog.request.source.Source
 import prod.prog.request.transformer.Transformer
@@ -23,15 +24,14 @@ abstract class RequestManager(private val supervisor: Supervisor, val managerNam
                 source,
                 transformer,
                 resultHandler,
-                errorHandler
+                errorHandler,
+                RequestContext()
             )
         )
 
     protected fun <T, R> makeRequest(request: Request<T, R>): CompletableFuture<R> {
-        request.source.createdBy = managerName
-        request.transformer.createdBy = managerName
-        request.resultHandler.createdBy = managerName
-        request.errorHandler.createdBy = managerName
-        return request.run(supervisor)
+        return request
+            .copy(requestContext = request.requestContext.map { it.copy(createdBy = managerName) })
+            .run(supervisor)
     }
 }

@@ -34,11 +34,11 @@ class TelegramBot(supervisor: Supervisor, var logger: LoggerService) : RequestMa
 
     override fun start() {
         telegramBot.startPolling()
-        logger.log(PrintInfo, "polling started for $telegramApiAddress")
+        logger.log(PrintInfo(), "polling started for $telegramApiAddress")
     }
 
     override fun stop() {
         telegramBot.stopPolling()
-        logger.log(PrintInfo, "polling stopped for $telegramApiAddress")
+        logger.log(PrintInfo(), "polling stopped for $telegramApiAddress")
     }
 }

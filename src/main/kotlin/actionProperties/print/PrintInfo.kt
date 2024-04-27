@@ -1,9 +1,9 @@
 package prod.prog.actionProperties.print
 
-import prod.prog.actionProperties.ActionClass
-
 interface PrintInfo : PrintWarning {
-    companion object : ActionClass(), PrintInfo {
-        override fun message(): String = "info"
+    companion object {
+        operator fun invoke() = object : PrintInfo {
+            override fun message(): String = "info"
+        }
     }
 }

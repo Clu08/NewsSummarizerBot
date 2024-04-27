@@ -1,7 +1,7 @@
 package prod.prog.request.resultHandler
 
-import prod.prog.actionProperties.ActionClass
+import prod.prog.actionProperties.Action
 
-abstract class ResultHandler<T> : ActionClass() {
-    abstract operator fun invoke(t: T)
+interface ResultHandler<T> : Action {
+    operator fun invoke(t: T)
 }
