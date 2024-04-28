@@ -91,7 +91,7 @@ class RequestTest {
 
         val result = request.run(supervisor).recoverWith { Future { wrong } }.get()
 
-        assertEquals(result, correct)
+        assertEquals(correct, result)
     }
 
     @Test
@@ -102,7 +102,7 @@ class RequestTest {
 
         val result = request.run(supervisor).recoverWith { Future { wrong } }.get()
 
-        assertEquals(result, wrong)
+        assertEquals(wrong, result)
     }
 
     @Test
@@ -113,7 +113,7 @@ class RequestTest {
 
         val result = request.run(supervisor).recoverWith { Future { wrong } }.get()
 
-        assertEquals(result, wrong)
+        assertEquals(wrong, result)
     }
 
     @Test
@@ -124,7 +124,7 @@ class RequestTest {
 
         val result = request.run(supervisor).recoverWith { Future { wrong } }.get()
 
-        assertEquals(result, correct)
+        assertEquals(correct, result)
     }
 
     @Test
@@ -135,7 +135,7 @@ class RequestTest {
 
         val result = request.run(supervisor).recoverWith { Future { wrong } }.get()
 
-        assertEquals(result, correct)
+        assertEquals(correct, result)
     }
 
     @Test
