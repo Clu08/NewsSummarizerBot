@@ -13,6 +13,7 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.2")
+    testImplementation("io.mockk:mockk:1.13.10")
     implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:telegram:6.1.0")
     implementation("com.github.vjames19.kotlin-futures:kotlin-futures-jdk8:1.2.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")

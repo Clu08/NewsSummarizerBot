@@ -22,6 +22,12 @@ data class Request<T, R>(
         val resultHandler = resultHandler.addContext(newContext.resultHandlerContext)
         val errorHandler = errorHandler.addContext(newContext.errorHandlerContext)
 
+        fun handleError(throwable: Throwable) {
+            supervisor.before(errorHandler)
+            errorHandler(throwable)
+            supervisor.after(errorHandler)
+        }
+
         supervisor.before(source)
         return source()
             .map {
@@ -30,20 +36,19 @@ data class Request<T, R>(
                 transformer(it).also {
                     supervisor.after(transformer)
                 }
-
             }
             .onComplete(
                 onSuccess = { result ->
-                    supervisor.before(resultHandler)
-                    resultHandler(result).also {
+                    try {
+                        supervisor.before(resultHandler)
+                        resultHandler(result)
                         supervisor.after(resultHandler)
+                    } catch (throwable: Throwable) {
+                        handleError(throwable)
                     }
                 },
                 onFailure = { throwable ->
-                    supervisor.before(errorHandler)
-                    errorHandler(throwable).also {
-                        supervisor.after(errorHandler)
-                    }
+                    handleError(throwable)
                 })
     }
 }

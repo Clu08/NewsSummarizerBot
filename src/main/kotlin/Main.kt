@@ -34,7 +34,7 @@ fun main() {
     val request = Request(
         ConstantSource(1),
         IdTransformer(),
-        //    вывод уровня Error напечатают все 3 логгера, а Debug только finished
+        //  вывод уровня Error напечатают все 3 логгера, а Debug только finished
         object : IgnoreHandler<Int>(), PrintError {
             override fun message() = "IgnoreHandler"
         },
