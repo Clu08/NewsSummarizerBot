@@ -11,4 +11,5 @@ interface DataBaseService {
     fun getNewsPieceByLink(link: String): NewsPiece?
     fun getNewsSummariesByCompany(company: Company): Iterable<NewsSummary>
     fun getNewsSummariesByNewsPiece(newsPiece: NewsPiece): Iterable<NewsSummary>
+    fun getNewsPiecesByCompany(company: Company): Iterable<NewsPiece>
 }
