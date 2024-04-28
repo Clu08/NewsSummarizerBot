@@ -43,7 +43,7 @@ fun main() {
     )
 
     // в выводе видно, что результат пришёл до начала срабатывания Handler
-    logger.log(PrintInfo(), "result: ${request.run(supervisor).get()}")
+    logger.log(PrintInfo(), "result: ${request.get(supervisor)}")
 
     Thread.sleep(1_000)
 
@@ -51,7 +51,7 @@ fun main() {
     // теперь будет печататься только IgnoreHandler с уровнем Error
     supervisor.after = EmptySolver()
 
-    logger.log(PrintInfo(), "result: ${request.run(supervisor).get()}")
+    logger.log(PrintInfo(), "result: ${request.get(supervisor)}")
 
     Thread.sleep(1_000)
 

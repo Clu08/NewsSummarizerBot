@@ -2,8 +2,12 @@ package prod.prog.request
 
 import io.github.vjames19.futures.jdk8.map
 import io.github.vjames19.futures.jdk8.onComplete
+import prod.prog.request.resultHandler.IgnoreErrorHandler
+import prod.prog.request.resultHandler.IgnoreHandler
 import prod.prog.request.resultHandler.ResultHandler
+import prod.prog.request.source.ConstantSource
 import prod.prog.request.source.Source
+import prod.prog.request.transformer.IdTransformer
 import prod.prog.request.transformer.Transformer
 import prod.prog.service.supervisor.Supervisor
 import java.util.concurrent.CompletableFuture
@@ -50,5 +54,27 @@ data class Request<T, R>(
                 onFailure = { throwable ->
                     handleError(throwable)
                 })
+    }
+
+    fun get(supervisor: Supervisor): R = run(supervisor).get()
+
+    companion object {
+        fun <T> basicSourceRequest(source: Source<T>) = Request(
+            source,
+            IdTransformer(),
+            IgnoreHandler(),
+            IgnoreErrorHandler(),
+            RequestContext()
+        )
+
+        fun <T, R> basicTransformerRequest(transformer: Transformer<T, R>) = { value: T ->
+            Request(
+                ConstantSource(value),
+                transformer,
+                IgnoreHandler(),
+                IgnoreErrorHandler(),
+                RequestContext()
+            )
+        }
     }
 }
