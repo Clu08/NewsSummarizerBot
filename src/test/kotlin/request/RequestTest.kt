@@ -71,13 +71,13 @@ class RequestTest : StringSpec({
     every { resultHandler.invoke(any()) } returns Unit
     every { errorHandler.invoke(any()) } returns Unit
 
-    "validate run returns correct result in success case" {
+    "run returns correct result in success case" {
         val result = request.run(supervisor).recoverWith { Future { wrong } }
 
         result.await() shouldBe correct
     }
 
-    "validate run returns correct result on error in source" {
+    "run returns correct result on error in source" {
         every { source.invoke() } returns Future { throw error }
 
         val result = request.run(supervisor).recoverWith { Future { wrong } }
@@ -85,7 +85,7 @@ class RequestTest : StringSpec({
         result.await() shouldBe wrong
     }
 
-    "validate run returns correct result on error in transformer" {
+    "run returns correct result on error in transformer" {
         every { transformer.invoke(any()) } throws error
 
         val result = request.run(supervisor).recoverWith { Future { wrong } }
@@ -93,7 +93,7 @@ class RequestTest : StringSpec({
         result.await() shouldBe wrong
     }
 
-    "validate run returns correct result on error in result handler" {
+    "run returns correct result on error in result handler" {
         every { resultHandler.invoke(any()) } throws error
 
         val result = request.run(supervisor).recoverWith { Future { wrong } }
@@ -101,7 +101,7 @@ class RequestTest : StringSpec({
         result.await() shouldBe correct
     }
 
-    "validate run returns correct result on error in error handler" {
+    "run returns correct result on error in error handler" {
         every { errorHandler.invoke(any()) } throws error
 
         val result = request.run(supervisor).recoverWith { Future { wrong } }
@@ -109,7 +109,7 @@ class RequestTest : StringSpec({
         result.await() shouldBe correct
     }
 
-    "validate run uses expected order in success case" {
+    "run uses expected order in success case" {
         request.run(supervisor)
 
         verifySequence {
@@ -123,7 +123,7 @@ class RequestTest : StringSpec({
         }
     }
 
-    "validate run uses expected order with error in source" {
+    "run uses expected order with error in source" {
         every { source.invoke() } returns Future { throw error }
 
         request.run(supervisor)
@@ -136,7 +136,7 @@ class RequestTest : StringSpec({
         }
     }
 
-    "validate run uses expected order with error in transformer" {
+    "run uses expected order with error in transformer" {
         every { transformer.invoke(any()) } throws error
 
         request.run(supervisor)
@@ -151,7 +151,7 @@ class RequestTest : StringSpec({
         }
     }
 
-    "validate run uses expected order with error in result handling" {
+    "run uses expected order with error in result handling" {
         every { resultHandler.invoke(any()) } throws error
 
         request.run(supervisor)
@@ -168,7 +168,7 @@ class RequestTest : StringSpec({
         }
     }
 
-    "validate run uses expected order with error in error handling" {
+    "run uses expected order with error in error handling" {
         every { source.invoke() } returns Future { throw error }
         every { errorHandler.invoke(any()) } throws error
 
@@ -181,7 +181,7 @@ class RequestTest : StringSpec({
         }
     }
 
-    "validate run uses expected order with error in result handling and in error handling" {
+    "run uses expected order with error in result handling and in error handling" {
         every { resultHandler.invoke(any()) } throws error
         every { errorHandler.invoke(any()) } throws error
 

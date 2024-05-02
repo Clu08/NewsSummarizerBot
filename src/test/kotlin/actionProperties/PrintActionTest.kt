@@ -16,11 +16,23 @@ class PrintActionTest : StringSpec({
     val info = PrintInfo { "info" }
     val debug = PrintDebug { "debug" }
 
-    "verify log levels order" {
+    "fatal should be PropertyAdderFactory" {
         fatal should beInstanceOf<PropertyAdderFactory>()
+    }
+
+    "error should be PrintFatal" {
         error should beInstanceOf<PrintFatal>()
+    }
+
+    "warning should be PrintError" {
         warning should beInstanceOf<PrintError>()
+    }
+
+    "info should be PrintWarning" {
         info should beInstanceOf<PrintWarning>()
+    }
+
+    "debug should be PrintInfo" {
         debug should beInstanceOf<PrintInfo>()
     }
 })

@@ -13,13 +13,13 @@ class ConstantSourceTest : StringSpec({
 
     val values = listOf(1, "1", MutableSingleton(1)).exhaustive()
 
-    "validate getSource does not change the source" {
+    "getSource does not change the source" {
         checkAll(values) { value ->
             ConstantSource(value).getSource() shouldBe value
         }
     }
 
-    "validate invoke does not change the source" {
+    "invoke does not change the source" {
         checkAll(values) { value ->
             ConstantSource(value)().await() shouldBe value
         }
