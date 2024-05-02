@@ -11,19 +11,23 @@ repositories {
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.2")
-    testImplementation("io.mockk:mockk:1.13.10")
     implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:telegram:6.1.0")
     implementation("com.github.vjames19.kotlin-futures:kotlin-futures-jdk8:1.2.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
 
-    testImplementation(platform("io.cucumber:cucumber-bom:7.17.0"))
+    testImplementation(kotlin("test"))
 
+    testImplementation(platform("io.cucumber:cucumber-bom:7.17.0"))
     testImplementation("io.cucumber:cucumber-java")
     testImplementation("io.cucumber:cucumber-junit-platform-engine")
+
+    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
     testImplementation("org.junit.platform:junit-platform-suite")
     testImplementation("org.junit.jupiter:junit-jupiter")
+
+    testImplementation("io.mockk:mockk:1.12.4")
+    testImplementation("net.bytebuddy:byte-buddy:1.14.14")
 }
 
 tasks.test {
@@ -35,7 +39,7 @@ task<Test>("unit-test") {
     description = "runs the unit tests"
     group = "verification"
 
-    exclude("integration/**")
+    exclude("prog/prod/integration/**")
 
     useJUnitPlatform()
 
@@ -53,9 +57,11 @@ task<Test>("integration-test") {
     description = "runs the integration tests"
     group = "verification"
 
-    include("integration/**")
+    include("prog/prod/integration/**")
 
-    useJUnitPlatform()
+    useJUnitPlatform(
+        
+    )
 }
 
 kotlin {

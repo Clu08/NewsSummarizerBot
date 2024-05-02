@@ -1,5 +1,7 @@
 package prod.prog.request.resultHandler
 
-class IgnoreErrorHandler : IgnoreHandler<Throwable>(), ErrorHandler {
-    override fun message(): String = "Error ignored"
+class IgnoreErrorHandler : ErrorHandler() {
+    override fun invoke(t: Throwable) {}
+
+    override fun message(): String = "error ignored"
 }

@@ -5,7 +5,7 @@ import com.github.kotlintelegrambot.dispatch
 import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
 import io.github.cdimascio.dotenv.dotenv
-import prod.prog.actionProperties.print.PrintInfo
+import prod.prog.actionProperties.contextFactory.print.PrintInfo
 import prod.prog.request.resultHandler.IgnoreErrorHandler
 import prod.prog.request.resultHandler.IgnoreHandler
 import prod.prog.request.source.ConstantSource
@@ -35,11 +35,11 @@ class TelegramBot(supervisor: Supervisor, var logger: LoggerService) : RequestMa
 
     override fun start() {
         telegramBot.startPolling()
-        logger.log(PrintInfo(), "polling started for $telegramApiAddress")
+        logger.log(PrintInfo, "polling started for $telegramApiAddress")
     }
 
     override fun stop() {
         telegramBot.stopPolling()
-        logger.log(PrintInfo(), "polling stopped for $telegramApiAddress")
+        logger.log(PrintInfo, "polling stopped for $telegramApiAddress")
     }
 }

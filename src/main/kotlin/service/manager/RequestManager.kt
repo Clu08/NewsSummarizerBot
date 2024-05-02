@@ -32,7 +32,7 @@ abstract class RequestManager(private val supervisor: Supervisor) : Service {
 
     protected fun <T, R> makeRequest(request: Request<T, R>): CompletableFuture<R> {
         return request
-            .copy(requestContext = request.requestContext.map { it.copy(createdBy = managerName) })
+            .addToInitContext("createdBy" to name())
             .run(supervisor)
     }
 }

@@ -1,7 +1,7 @@
 package prod.prog.service.logger
 
-import prod.prog.actionProperties.print.PrintFatal
-import prod.prog.actionProperties.print.PrintWarning
+import prod.prog.actionProperties.contextFactory.print.PrintFatal
+import prod.prog.actionProperties.contextFactory.print.PrintWarning
 
 class ConsoleLogger : LoggerService {
     override fun name() = "ConsoleLogger"
@@ -9,6 +9,6 @@ class ConsoleLogger : LoggerService {
         when (logLevel) {
             is PrintWarning -> System.out
             else -> System.err
-        }.println("${logLevel.message()}\t${curTime()}\t\t$message")
+        }.println("${logLevel.key()}\t${curTime()}\t\t$message")
     }
 }

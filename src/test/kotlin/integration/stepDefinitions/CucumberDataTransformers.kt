@@ -1,8 +1,8 @@
-package integration.stepDefinitions
+package prod.prog.integration.stepDefinitions
 
-import common.randomId
 import io.cucumber.java.DataTableType
 import io.cucumber.java.ParameterType
+import prod.prog.common.randomId
 import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
 import kotlin.math.abs

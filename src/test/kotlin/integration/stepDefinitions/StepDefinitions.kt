@@ -1,4 +1,4 @@
-package integration.stepDefinitions
+package prod.prog.integration.stepDefinitions
 
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.JsonMappingException.Reference
 import io.cucumber.java.en.Given
@@ -36,9 +36,12 @@ class StepDefinitions {
                     else -> "5"
                 }
             )
+
+        override fun name() = "LanguageModelDummy"
     }
     private val dataBase = mockk<DataBaseService>().also {
         every { it.getNewsPiecesByCompany(any<Company>()) } answers { callOriginal() }
+        every { it.name() } answers { "DataBaseMock" }
     }
 
     private var result = mutableMapOf<Company, Double>()
@@ -70,7 +73,9 @@ class StepDefinitions {
         for (name in names) {
             val (company, news) =
                 Request.basicSourceRequest(
-                    CompanySource(dataBase, name).andThenWithPair { company -> NewsPiecesByCompanySource(dataBase, company) }
+                    CompanySource(dataBase, name).andThenWithPair { company ->
+                        NewsPiecesByCompanySource(dataBase, company)
+                    }
                 ).get(supervisor)
 
             val summaries = news.map { newsPiece ->

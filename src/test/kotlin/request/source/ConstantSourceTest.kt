@@ -1,11 +1,10 @@
-package request.source
+package prod.prog.request.source
 
-import common.MutableSingleton
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import prod.prog.request.source.ConstantSource
+import prod.prog.common.MutableSingleton
 
 class ConstantSourceTest {
     @ParameterizedTest

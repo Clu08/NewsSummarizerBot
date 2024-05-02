@@ -1,28 +1,14 @@
 package prod.prog.request
 
-import prod.prog.actionProperties.ActionContext
+import prod.prog.actionProperties.Context
 
 data class RequestContext(
-    val sourceContext: ActionContext,
-    val transformerContext: ActionContext,
-    val resultHandlerContext: ActionContext,
-    val errorHandlerContext: ActionContext,
-) {
-    fun map(map: (ActionContext) -> ActionContext): RequestContext =
-        RequestContext(
-            map(sourceContext),
-            map(transformerContext),
-            map(resultHandlerContext),
-            map(errorHandlerContext)
-        )
-
-    companion object {
-        operator fun invoke() =
-            RequestContext(
-                ActionContext.system(),
-                ActionContext.system(),
-                ActionContext.system(),
-                ActionContext.system()
-            )
-    }
-}
+    val requestSpecificContext: Context = Context(
+        "id" to "0",
+        "createdBy" to "System"
+    ),
+    val sourceContext: Context = Context(),
+    val transformerContext: Context = Context(),
+    val resultHandlerContext: Context = Context(),
+    val errorHandlerContext: Context = Context(),
+)

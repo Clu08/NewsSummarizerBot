@@ -1,11 +1,10 @@
-package request.transformer
+package prod.prog.request.transformer
 
-import common.MutableSingleton
-
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import prod.prog.common.MutableSingleton
 import prod.prog.request.source.ConstantSource
 
 class IdTransformerTest {

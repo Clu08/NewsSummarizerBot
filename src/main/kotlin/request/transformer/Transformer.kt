@@ -1,8 +1,15 @@
 package prod.prog.request.transformer
 
 import prod.prog.actionProperties.Action
-import prod.prog.actionProperties.print.PrintDebug
+import prod.prog.actionProperties.contextFactory.print.PrintDebug
 
-interface Transformer<T, R> : Action, PrintDebug {
-    operator fun invoke(t: T): R
+abstract class Transformer<T, R> : Action() {
+    init {
+        addContext(
+            PrintDebug { message() },
+        )
+    }
+
+    abstract operator fun invoke(t: T): R
+    abstract fun message(): String
 }

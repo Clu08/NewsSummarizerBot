@@ -1,14 +1,15 @@
-package actionProperties
+package prod.prog.actionProperties
 
 import org.junit.jupiter.api.Test
-import prod.prog.actionProperties.Action
-import prod.prog.actionProperties.print.*
+import prod.prog.actionProperties.contextFactory.*
+import prod.prog.actionProperties.contextFactory.print.*
+import prod.prog.actionProperties.contextFactory.print.PrintInfo
 import kotlin.test.assertIs
 
 class PrintActionTest {
     @Test
     fun `verify log levels order`() {
-        assertIs<Action>(fatal)
+        assertIs<PropertyAdderFactory>(fatal)
         assertIs<PrintFatal>(error)
         assertIs<PrintError>(warning)
         assertIs<PrintWarning>(info)
@@ -16,20 +17,10 @@ class PrintActionTest {
     }
 
     companion object {
-        val fatal = object : PrintFatal {
-            override fun message() = "fatal"
-        }
-        val error = object : PrintError {
-            override fun message() = "error"
-        }
-        val warning = object : PrintWarning {
-            override fun message() = "warning"
-        }
-        val info = object : PrintInfo {
-            override fun message() = "info"
-        }
-        val debug = object : PrintDebug {
-            override fun message() = "debug"
-        }
+        val fatal = PrintFatal { "fatal" }
+        val error = PrintError { "error" }
+        val warning = PrintWarning { "warning" }
+        val info = PrintInfo { "info" }
+        val debug = PrintDebug { "debug" }
     }
 }
