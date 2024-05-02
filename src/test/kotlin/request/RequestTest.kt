@@ -10,6 +10,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verifySequence
+import kotlinx.coroutines.future.await
 import prod.prog.actionProperties.Context
 import prod.prog.request.resultHandler.ErrorHandler
 import prod.prog.request.resultHandler.ResultHandler
@@ -71,41 +72,41 @@ class RequestTest : StringSpec({
     every { errorHandler.invoke(any()) } returns Unit
 
     "validate run returns correct result in success case" {
-        val result = request.run(supervisor).recoverWith { Future { wrong } }.get()
+        val result = request.run(supervisor).recoverWith { Future { wrong } }
 
-        result shouldBe correct
+        result.await() shouldBe correct
     }
 
     "validate run returns correct result on error in source" {
         every { source.invoke() } returns Future { throw error }
 
-        val result = request.run(supervisor).recoverWith { Future { wrong } }.get()
+        val result = request.run(supervisor).recoverWith { Future { wrong } }
 
-        result shouldBe wrong
+        result.await() shouldBe wrong
     }
 
     "validate run returns correct result on error in transformer" {
         every { transformer.invoke(any()) } throws error
 
-        val result = request.run(supervisor).recoverWith { Future { wrong } }.get()
+        val result = request.run(supervisor).recoverWith { Future { wrong } }
 
-        result shouldBe wrong
+        result.await() shouldBe wrong
     }
 
     "validate run returns correct result on error in result handler" {
         every { resultHandler.invoke(any()) } throws error
 
-        val result = request.run(supervisor).recoverWith { Future { wrong } }.get()
+        val result = request.run(supervisor).recoverWith { Future { wrong } }
 
-        result shouldBe correct
+        result.await() shouldBe correct
     }
 
     "validate run returns correct result on error in error handler" {
         every { errorHandler.invoke(any()) } throws error
 
-        val result = request.run(supervisor).recoverWith { Future { wrong } }.get()
+        val result = request.run(supervisor).recoverWith { Future { wrong } }
 
-        result shouldBe correct
+        result.await() shouldBe correct
     }
 
     "validate run uses expected order in success case" {
