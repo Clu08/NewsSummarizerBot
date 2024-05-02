@@ -1,4 +1,3 @@
-@integration
 Feature: Basic User Stories
 
   Scenario: Simple comparison

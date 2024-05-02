@@ -1,6 +1,5 @@
-package prod.prog.integration.stepDefinitions
+package prod.prog.integration.cucumber
 
-import io.cucumber.core.internal.com.fasterxml.jackson.databind.JsonMappingException.Reference
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
@@ -18,7 +17,6 @@ import prod.prog.service.languageModel.LanguageModelService
 import prod.prog.service.supervisor.Supervisor
 import prod.prog.service.supervisor.solver.EmptySolver
 
-
 class StepDefinitions {
     val supervisor = Supervisor(
         before = EmptySolver(),
@@ -28,8 +26,7 @@ class StepDefinitions {
     val languageModelStub = object : LanguageModelService {
         override fun summarizeNewsPieceByCompany(company: Company, newsPiece: NewsPiece): NewsSummary =
             NewsSummary(
-                company, newsPiece,
-                when {
+                company, newsPiece, when {
                     !newsPiece.text.contains(company.name) -> "5"
                     newsPiece.text.contains("good") -> "10"
                     newsPiece.text.contains("bad") -> "0"

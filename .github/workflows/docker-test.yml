@@ -15,8 +15,8 @@ jobs:
       - name: Build docker image
         run: docker build . --file Dockerfile --tag news-summarizer-bot:latest
 
-      - name: Run tests
+      - name: Run unit tests
         run: docker run --rm news-summarizer-bot:latest ./gradlew unit-test
 
-      - name: Run tests
+      - name: Run integration tests
         run: docker run --rm news-summarizer-bot:latest ./gradlew integration-test

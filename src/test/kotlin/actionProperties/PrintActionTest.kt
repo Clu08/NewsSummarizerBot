@@ -1,26 +1,26 @@
 package prod.prog.actionProperties
 
-import org.junit.jupiter.api.Test
-import prod.prog.actionProperties.contextFactory.*
+import common.UnitTest
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.should
+import io.kotest.matchers.types.beInstanceOf
+import prod.prog.actionProperties.contextFactory.PropertyAdderFactory
 import prod.prog.actionProperties.contextFactory.print.*
-import prod.prog.actionProperties.contextFactory.print.PrintInfo
-import kotlin.test.assertIs
 
-class PrintActionTest {
-    @Test
-    fun `verify log levels order`() {
-        assertIs<PropertyAdderFactory>(fatal)
-        assertIs<PrintFatal>(error)
-        assertIs<PrintError>(warning)
-        assertIs<PrintWarning>(info)
-        assertIs<PrintInfo>(debug)
-    }
+class PrintActionTest : StringSpec({
+    tags(UnitTest)
 
-    companion object {
-        val fatal = PrintFatal { "fatal" }
-        val error = PrintError { "error" }
-        val warning = PrintWarning { "warning" }
-        val info = PrintInfo { "info" }
-        val debug = PrintDebug { "debug" }
+    val fatal = PrintFatal { "fatal" }
+    val error = PrintError { "error" }
+    val warning = PrintWarning { "warning" }
+    val info = PrintInfo { "info" }
+    val debug = PrintDebug { "debug" }
+
+    "verify log levels order" {
+        fatal should beInstanceOf<PropertyAdderFactory>()
+        error should beInstanceOf<PrintFatal>()
+        warning should beInstanceOf<PrintError>()
+        info should beInstanceOf<PrintWarning>()
+        debug should beInstanceOf<PrintInfo>()
     }
-}
+})

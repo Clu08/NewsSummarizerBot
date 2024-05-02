@@ -1,28 +1,27 @@
 package prod.prog.request.source
 
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.MethodSource
+import common.UnitTest
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.property.checkAll
+import io.kotest.property.exhaustive.exhaustive
+import kotlinx.coroutines.future.await
 import prod.prog.common.MutableSingleton
 
-class ConstantSourceTest {
-    @ParameterizedTest
-    @MethodSource("params")
-    fun <T> `validate getSource does not change the source`(t: T) {
-        assertEquals(t, ConstantSource(t).getSource())
+class ConstantSourceTest : StringSpec({
+    tags(UnitTest)
+
+    val values = listOf(1, "1", MutableSingleton(1)).exhaustive()
+
+    "validate getSource does not change the source" {
+        checkAll(values) { value ->
+            ConstantSource(value).getSource() shouldBe value
+        }
     }
 
-    @ParameterizedTest
-    @MethodSource("params")
-    fun <T> `validate invoke does not change the source`(t: T) {
-        assertEquals(t, ConstantSource(t)().get())
+    "validate invoke does not change the source" {
+        checkAll(values) { value ->
+            ConstantSource(value)().await() shouldBe value
+        }
     }
-
-    companion object {
-        @JvmStatic
-        private fun params() =
-            listOf(1, 1.toString(), MutableSingleton(1))
-                .map { Arguments.of(it) }
-    }
-}
+})

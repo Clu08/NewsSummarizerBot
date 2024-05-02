@@ -1,4 +1,4 @@
-package prod.prog.integration.stepDefinitions
+package prod.prog.integration.cucumber
 
 import io.cucumber.java.DataTableType
 import io.cucumber.java.ParameterType
