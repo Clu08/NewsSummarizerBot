@@ -5,10 +5,11 @@ import prod.prog.request.RequestContext
 import prod.prog.request.resultHandler.ResultHandler
 import prod.prog.request.source.Source
 import prod.prog.request.transformer.Transformer
+import prod.prog.service.Service
 import prod.prog.service.supervisor.Supervisor
 import java.util.concurrent.CompletableFuture
 
-abstract class RequestManager(private val supervisor: Supervisor, val managerName: String) {
+abstract class RequestManager(private val supervisor: Supervisor) : Service {
     abstract fun start()
 
     abstract fun stop()

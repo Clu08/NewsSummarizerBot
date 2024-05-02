@@ -13,7 +13,8 @@ import prod.prog.request.transformer.IdTransformer
 import prod.prog.service.logger.LoggerService
 import prod.prog.service.supervisor.Supervisor
 
-class TelegramBot(supervisor: Supervisor, var logger: LoggerService) : RequestManager(supervisor, "telegramBot") {
+class TelegramBot(supervisor: Supervisor, var logger: LoggerService) : RequestManager(supervisor) {
+    override fun name() = "TelegramBot"
     private val telegramApiToken = dotenv()["TELEGRAM_API_TOKEN"]
     private val telegramApiAddress = dotenv()["TELEGRAM_API_ADDRESS"]
     private val telegramBot = bot {

@@ -3,8 +3,9 @@ package prod.prog.service.database
 import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
 import prod.prog.dataTypes.NewsSummary
+import prod.prog.service.Service
 
-interface DataBaseService {
+interface DataBaseService : Service {
 //    todo functions to work with database
 
     fun getCompanyByName(name: String): Company?

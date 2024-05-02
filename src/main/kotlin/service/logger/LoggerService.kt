@@ -1,10 +1,11 @@
 package prod.prog.service.logger
 
-import prod.prog.actionProperties.print.PrintFatal
+import prod.prog.actionProperties.contextFactory.print.PrintFatal
+import prod.prog.service.Service
 import java.text.SimpleDateFormat
 import java.util.*
 
-interface LoggerService {
+interface LoggerService : Service {
     fun log(logLevel: PrintFatal, message: String)
 
     fun curTime(): String {
@@ -18,5 +19,7 @@ interface LoggerService {
                 this@LoggerService.log(logLevel, message)
                 other.log(logLevel, message)
             }
+
+            override fun name() = "${this@LoggerService.name()} andThen ${other.name()}"
         }
 }
