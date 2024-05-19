@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Loggers>
+    <Root level="info">
+        <AppenderRef ref="CONSOLE"/>
+    </Root>
+    <Logger name="APPLICATION_MESSAGES.log" level="info" additivity="true">
+        <AppenderRef ref="MESSAGES"/>
+    </Logger>
+    <Logger name="TELEGRAM_API.log" level="info" additivity="true">
+        <AppenderRef ref="REQUESTS"/>
+    </Logger>
+</Loggers>

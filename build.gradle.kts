@@ -16,6 +16,10 @@ dependencies {
     implementation("com.github.vjames19.kotlin-futures:kotlin-futures-jdk8:1.2.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
 
+    // logging and monitoring
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.4.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
+
     testImplementation("io.kotest:kotest-runner-junit5:5.8.1")
     testImplementation("io.kotest:kotest-assertions-core:5.8.1")
     testImplementation("io.kotest:kotest-property:5.8.1")
