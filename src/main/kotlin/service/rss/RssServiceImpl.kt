@@ -4,7 +4,7 @@ import com.prof18.rssparser.RssParser
 import kotlinx.coroutines.coroutineScope
 import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
-import prod.prog.dataTypes.RssSource
+import prod.prog.dataTypes.rss.RssSource
 import prod.prog.service.newsFilter.NewsFilterService
 import prod.prog.utils.RssDataConverterUtils.convertRssItemToNewsPiece
 import prod.prog.utils.parallelMap

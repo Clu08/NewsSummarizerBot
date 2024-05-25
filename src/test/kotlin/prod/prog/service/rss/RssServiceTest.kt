@@ -12,7 +12,7 @@ import io.mockk.mockk
 import prod.prog.common.mockedRssItem
 import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
-import prod.prog.dataTypes.RssSource
+import prod.prog.dataTypes.rss.AvailableRssSources
 import prod.prog.service.newsFilter.NewsFilterByTextService
 
 class RssServiceTest : StringSpec({
@@ -35,7 +35,7 @@ class RssServiceTest : StringSpec({
 
         every { runBlocking { rssParser.getRssChannel(any()) } } returns rssChannel
 
-        val rssSource = RssSource("someRssChannelUrl")
+        val rssSource = AvailableRssSources.RBK.rssSource
         val news = rssService.fetchNewsFromRssSource(rssSource)
 
         val expectedNews = listOf(
@@ -55,7 +55,9 @@ class RssServiceTest : StringSpec({
 
         val rssChannel1 = mockk<RssChannel>()
         every { rssChannel1.items } returns mockedNewsSource1
-        every { runBlocking { rssParser.getRssChannel(eq("source1")) } } returns rssChannel1
+
+        val source1 = AvailableRssSources.RBK.rssSource
+        every { runBlocking { rssParser.getRssChannel(eq(source1.sourceUrl)) } } returns rssChannel1
 
         val mockedNewsSource2 = listOf(
             mockedRssItem("link1", "title1", "Yandex good"),
@@ -64,9 +66,11 @@ class RssServiceTest : StringSpec({
 
         val rssChannel2 = mockk<RssChannel>()
         every { rssChannel2.items } returns mockedNewsSource2
-        every { runBlocking { rssParser.getRssChannel(eq("source2")) } } returns rssChannel2
 
-        val rssSources = listOf(RssSource("source1"), RssSource("source2"))
+        val source2 = AvailableRssSources.LENTA.rssSource
+        every { runBlocking { rssParser.getRssChannel(eq(source2.sourceUrl)) } } returns rssChannel2
+
+        val rssSources = listOf(source1, source2)
         val yandexCompany = Company(name = "yandex")
         val newsAboutYandex = rssService.getNewsByCompany(yandexCompany, rssSources)
 

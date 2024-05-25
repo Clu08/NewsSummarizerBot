@@ -2,7 +2,7 @@ package prod.prog.service.rss
 
 import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
-import prod.prog.dataTypes.RssSource
+import prod.prog.dataTypes.rss.RssSource
 import prod.prog.service.Service
 
 /**
