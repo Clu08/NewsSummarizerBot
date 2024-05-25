@@ -11,6 +11,9 @@ class NewsFilterByTextService : NewsFilterService {
                 textContainsDataAboutCompany(news.text, company)
     }
 
+    /**
+     * Simply looking if [text] contains substring equal to [company] name
+     */
     private fun textContainsDataAboutCompany(text: String, company: Company): Boolean =
         text.lowercase(Locale.getDefault()).contains(company.name)
 
