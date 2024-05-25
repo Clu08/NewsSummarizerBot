@@ -3,14 +3,17 @@ package prod.prog
 import prod.prog.actionProperties.contextFactory.print.PrintDebug
 import prod.prog.actionProperties.contextFactory.print.PrintError
 import prod.prog.actionProperties.contextFactory.print.PrintInfo
+import prod.prog.dataTypes.Company
+import prod.prog.dataTypes.NewsPiece
 import prod.prog.request.Request
 import prod.prog.request.RequestContext
 import prod.prog.request.resultHandler.IgnoreErrorHandler
 import prod.prog.request.resultHandler.IgnoreHandler
-import prod.prog.request.source.ConstantSource
+import prod.prog.request.source.rss.RssSource
 import prod.prog.request.transformer.IdTransformer
 import prod.prog.service.logger.ConsoleLogger
 import prod.prog.service.manager.TelegramBot
+import prod.prog.service.rss.NewsRss
 import prod.prog.service.supervisor.Supervisor
 import prod.prog.service.supervisor.solver.EmptySolver
 import prod.prog.service.supervisor.solver.actionSolver.LoggerSolver
@@ -32,10 +35,10 @@ fun main() {
 
     // создаём Request
     val request = Request(
-        ConstantSource(1),
+        RssSource(Company("google"), NewsRss()),
         IdTransformer(),
         //  вывод уровня Error напечатают все 3 логгера, а Debug только finished
-        object : IgnoreHandler<Int>() {
+        object : IgnoreHandler<List<NewsPiece>>() {
             init {
                 addContext(PrintError { message() })
             }

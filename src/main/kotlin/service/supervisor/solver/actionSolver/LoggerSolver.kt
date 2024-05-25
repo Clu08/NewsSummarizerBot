@@ -10,6 +10,7 @@ class LoggerSolver(
     private val prefix: String,
     private val logLevel: PrintFatal,
 ) : IdSolver<Context> {
+    //todo change log level order
     override fun solve(t: Context) {
         val fullMessage = "id ${t["id"]}\t${t["createdBy"]}\t\t$prefix\t"
 
