@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Appenders>
+    <File name="MESSAGES" fileName="${sys:LOG_ROOT}/messages.log">
+        <PatternLayout pattern="%d{YYYY-MM-dd HH:mm:ss} [%t] %-5p %c{1}:%L - %msg%n"/>
+    </File>
+    <File name="REQUESTS" fileName="${sys:LOG_ROOT}/requests.log">
+        <PatternLayout pattern="%msg%n"/>
+    </File>
+    <Console name="CONSOLE" target="SYSTEM_OUT">
+        <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level - %msg%n"/>
+    </Console>
+</Appenders>
