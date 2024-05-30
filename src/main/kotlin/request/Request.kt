@@ -2,6 +2,8 @@ package prod.prog.request
 
 import io.github.vjames19.futures.jdk8.map
 import io.github.vjames19.futures.jdk8.onComplete
+import io.sentry.Sentry
+import io.sentry.SpanStatus
 import prod.prog.actionProperties.Context
 import prod.prog.request.resultHandler.IgnoreErrorHandler
 import prod.prog.request.resultHandler.IgnoreHandler
@@ -13,6 +15,7 @@ import prod.prog.request.transformer.Transformer
 import prod.prog.service.supervisor.Supervisor
 import java.util.concurrent.CompletableFuture
 
+
 data class Request<T, R>(
     val source: Source<T>,
     val transformer: Transformer<T, R>,
@@ -21,6 +24,8 @@ data class Request<T, R>(
     val initContext: RequestContext,
 ) {
     fun run(supervisor: Supervisor): CompletableFuture<R> {
+        val transaction = Sentry.startTransaction("run()", "Request")
+
         var (_, sourceContext, transformerContext, resultHandlerContext, errorHandlerContext) =
             supervisor.getInitContext()(
                 initContext.copy(
@@ -52,10 +57,20 @@ data class Request<T, R>(
                 resultHandler(result)
                 change = supervisor.after(resultHandlerContext).diff(resultHandlerContext)
             } catch (throwable: Throwable) {
+                transaction.throwable = throwable
+                transaction.status = SpanStatus.INTERNAL_ERROR
                 handleError(throwable, change)
+            } finally {
+                transaction.finish()
             }
         }, onFailure = { throwable ->
-            handleError(throwable, change)
+            transaction.throwable = throwable
+            transaction.status = SpanStatus.INTERNAL_ERROR
+            try {
+                handleError(throwable, change)
+            } finally {
+                transaction.finish()
+            }
         })
     }
 

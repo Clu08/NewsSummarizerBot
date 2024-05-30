@@ -1,9 +1,7 @@
 package prod.prog
 
-import prod.prog.actionProperties.contextFactory.print.PrintDebug
-import prod.prog.actionProperties.contextFactory.print.PrintError
-import prod.prog.actionProperties.contextFactory.print.PrintInfo
-import prod.prog.actionProperties.contextFactory.print.PrintTrace
+import prod.prog.actionProperties.contextFactory.print.*
+import prod.prog.configuration.ApplicationConfiguration
 import prod.prog.request.Request
 import prod.prog.request.RequestContext
 import prod.prog.request.resultHandler.IgnoreErrorHandler
@@ -18,7 +16,9 @@ import prod.prog.service.supervisor.solver.EmptySolver
 import prod.prog.service.supervisor.solver.actionSolver.LoggerSolver
 import prod.prog.service.supervisor.solver.requestSolver.SetUniqueIdSolver
 
+
 fun main() {
+    ApplicationConfiguration().initApplication()
     val logger = Log4jLoggerService(LogType.MESSAGES)
     val telegramApiLogger = Log4jLoggerService(LogType.TELEGRAM_API)
 
@@ -53,8 +53,12 @@ fun main() {
     logger.log(PrintInfo, "result: ${request.get(supervisor)}")
 
     logger.log(PrintTrace, "trace")
+    logger.log(PrintWarning, "warn")
+    logger.log(PrintError, "error")
 
     telegramApiLogger.log(PrintInfo, "telegram api log")
+    telegramApiLogger.log(PrintWarning, "telegram api warn")
+    telegramApiLogger.log(PrintError, "telegram api error")
 
     Thread.sleep(1_000)
 
@@ -69,6 +73,7 @@ fun main() {
     supervisor.before = LoggerSolver(logger, "started ", PrintDebug)
     supervisor.after = LoggerSolver(logger, "finished", PrintDebug)
 
+    request.run(supervisor)
     val telegramBot = TelegramBot(supervisor, telegramApiLogger)
     telegramBot.start()
 }

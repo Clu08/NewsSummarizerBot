@@ -5,8 +5,10 @@
     </Root>
     <Logger name="APPLICATION_MESSAGES.log" level="info" additivity="true">
         <AppenderRef ref="MESSAGES"/>
+        <AppenderRef ref="SENTRY"/>
     </Logger>
     <Logger name="TELEGRAM_API.log" level="info" additivity="true">
         <AppenderRef ref="REQUESTS"/>
+        <AppenderRef ref="SENTRY"/>
     </Logger>
 </Loggers>
