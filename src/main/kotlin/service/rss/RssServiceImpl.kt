@@ -1,34 +1,31 @@
 package prod.prog.service.rss
 
 import com.prof18.rssparser.RssParser
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
 import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
-import prod.prog.dataTypes.rss.RssSource
+import prod.prog.dataTypes.rss.RssNewsLink
 import prod.prog.service.newsFilter.NewsFilterService
 import prod.prog.utils.RssDataConverterUtils.convertRssItemToNewsPiece
-import prod.prog.utils.parallelMap
 
 class RssServiceImpl(
     private val newsFilterService: NewsFilterService,
     private val rssParser: RssParser,
 ) : RssService {
 
-    override suspend fun fetchNewsFromRssSource(rssSource: RssSource): List<NewsPiece> = coroutineScope {
-        return@coroutineScope rssParser
-            .getRssChannel(rssSource.sourceUrl)
-            .items
-            .parallelMap(::convertRssItemToNewsPiece)
-            .filterNotNull()
-    }
-
-    override suspend fun getNewsByCompany(company: Company, rssSources: List<RssSource>): List<NewsPiece> =
-        coroutineScope {
-            return@coroutineScope rssSources
-                .parallelMap { fetchNewsFromRssSource(it) }
+    override fun getNewsByCompany(company: Company, rssNewsLinks: List<RssNewsLink>): List<NewsPiece> {
+        return runBlocking {
+            rssNewsLinks
+                .map { fetchNewsFromRssSource(it) }
                 .flatten()
                 .filter { news -> newsFilterService.isNewsContainsInfoAboutCompany(news, company) }
         }
+    }
+
+    private suspend fun fetchNewsFromRssSource(rssNewsLink: RssNewsLink): List<NewsPiece> = rssParser
+        .getRssChannel(rssNewsLink.sourceUrl)
+        .items
+        .mapNotNull(::convertRssItemToNewsPiece)
 
     override fun name(): String = "RssServiceImpl"
 }

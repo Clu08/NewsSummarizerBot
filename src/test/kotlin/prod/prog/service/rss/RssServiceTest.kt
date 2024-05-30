@@ -24,29 +24,6 @@ class RssServiceTest : StringSpec({
     val newsFilter = NewsFilterByTextService()
     val rssService = RssServiceImpl(newsFilter, rssParser)
 
-    "fetch news from rss channel successfully" {
-        val mockedNews = listOf(
-            mockedRssItem("link1", "title1", "Yandex"),
-            mockedRssItem("link2", "title2", "Google"),
-        )
-
-        val rssChannel = mockk<RssChannel>()
-        every { rssChannel.items } returns mockedNews
-
-        every { runBlocking { rssParser.getRssChannel(any()) } } returns rssChannel
-
-        val rssSource = AvailableRssSources.RBK.rssSource
-        val news = rssService.fetchNewsFromRssSource(rssSource)
-
-        val expectedNews = listOf(
-            NewsPiece(link = "link1", title = "title1", text = "Yandex"),
-            NewsPiece(link = "link2", title = "title2", text = "Google"),
-        )
-
-        news shouldContainExactlyInAnyOrder expectedNews
-
-    }
-
     "fetch news about company from sources" {
         val mockedNewsSource1 = listOf(
             mockedRssItem("link1", "title1", "Yandex bad"),
@@ -56,7 +33,7 @@ class RssServiceTest : StringSpec({
         val rssChannel1 = mockk<RssChannel>()
         every { rssChannel1.items } returns mockedNewsSource1
 
-        val source1 = AvailableRssSources.RBK.rssSource
+        val source1 = AvailableRssSources.RBK.rssNewsLink
         every { runBlocking { rssParser.getRssChannel(eq(source1.sourceUrl)) } } returns rssChannel1
 
         val mockedNewsSource2 = listOf(
@@ -67,7 +44,7 @@ class RssServiceTest : StringSpec({
         val rssChannel2 = mockk<RssChannel>()
         every { rssChannel2.items } returns mockedNewsSource2
 
-        val source2 = AvailableRssSources.LENTA.rssSource
+        val source2 = AvailableRssSources.LENTA.rssNewsLink
         every { runBlocking { rssParser.getRssChannel(eq(source2.sourceUrl)) } } returns rssChannel2
 
         val rssSources = listOf(source1, source2)
