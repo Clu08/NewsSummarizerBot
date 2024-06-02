@@ -7,15 +7,15 @@ Feature: Basic User Stories
       | Google    |
       | Microsoft |
     And database has these news:
-      | link  | text                        |
-      | link1 | Google is good              |
-      | link2 | Apple and Microsoft are bad |
+      | link  | text                        | title                     |
+      | link1 | Google is good              | Google title              |
+      | link2 | Apple and Microsoft are bad | Apple and Microsoft title |
 #    could become Then or removed, but now used for mocking
     And there are such references:
-      | name      | link  | text                        |
-      | Google    | link1 | Google is good              |
-      | Apple     | link2 | Apple and Microsoft are bad |
-      | Microsoft | link2 | Apple and Microsoft are bad |
+      | name      | link  | text                        | title                     |
+      | Google    | link1 | Google is good              | Google title              |
+      | Apple     | link2 | Apple and Microsoft are bad | Apple and Microsoft title |
+      | Microsoft | link2 | Apple and Microsoft are bad | Apple and Microsoft title |
     When asked about Google and Microsoft
     Then Google should be better then Microsoft
     When asked about Apple

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <Properties>
+        <Property name="LOG_ROOT">/log</Property>
+    </Properties>
+    <xi:include href="log4j2-loggers.xml"/>
+    <xi:include href="log4j2-appenders.xml"/>
+</Configuration>
