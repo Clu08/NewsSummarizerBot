@@ -16,6 +16,13 @@ dependencies {
     implementation("com.github.vjames19.kotlin-futures:kotlin-futures-jdk8:1.2.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
 
+
+    val exposedVersion = "0.50.0"
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("com.h2database:h2:2.2.224")
+
     testImplementation("io.kotest:kotest-runner-junit5:5.8.1")
     testImplementation("io.kotest:kotest-assertions-core:5.8.1")
     testImplementation("io.kotest:kotest-property:5.8.1")
