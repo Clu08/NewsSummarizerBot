@@ -5,7 +5,7 @@ import prod.prog.dataTypes.NewsPiece
 import prod.prog.dataTypes.NewsSummary
 import prod.prog.service.Service
 
-interface DataBaseServiceMethods : Service {
+interface DatabaseServiceMethods : Service {
     fun getCompanyByName(name: String): Company?
     fun getNewsPieceByLink(link: String): NewsPiece?
     fun getNewsSummariesByCompany(company: Company): Iterable<NewsSummary>
@@ -13,7 +13,7 @@ interface DataBaseServiceMethods : Service {
     fun getNewsPiecesByCompany(company: Company): Iterable<NewsPiece>
 
     fun addCompany(name: String)
-    fun addNewsPiece(link: String, text: String)
+    fun addNewsPiece(link: String, title: String, text: String, categories: List<String> = listOf())
     fun addNewsSummary(company: Company, newsPiece: NewsPiece, summary: String)
 
     fun databaseURL(): String

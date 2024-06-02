@@ -10,7 +10,9 @@ class NewsPieceEntity(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<NewsPieceEntity>(NewsPieceTable)
 
     var link by NewsPieceTable.link
+    var title by NewsPieceTable.title
     var text by NewsPieceTable.text
+    var categories by NewsPieceTable.categories
 
-    fun toNewsPiece() = NewsPiece(link, text)
+    fun toNewsPiece() = NewsPiece(link, title, text, categories)
 }

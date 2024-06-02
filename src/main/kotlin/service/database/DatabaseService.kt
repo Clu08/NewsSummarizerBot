@@ -10,7 +10,7 @@ import prod.prog.service.database.table.CompanyTable
 import prod.prog.service.database.table.NewsPieceTable
 import prod.prog.service.database.table.NewsSummaryTable
 
-class DataBaseService(private val dataBaseImpl: DataBaseImpl) : DataBaseServiceMethods {
+class DatabaseService(private val dataBaseImpl: DatabaseImpl) : DatabaseServiceMethods {
     init {
         Database.connect(
             url = databaseURL(),
@@ -39,8 +39,8 @@ class DataBaseService(private val dataBaseImpl: DataBaseImpl) : DataBaseServiceM
     override fun addCompany(name: String) =
         transaction { dataBaseImpl.addCompany(name) }
 
-    override fun addNewsPiece(link: String, text: String) =
-        transaction { dataBaseImpl.addNewsPiece(link, text) }
+    override fun addNewsPiece(link: String, title: String, text: String, categories: List<String>) =
+        transaction { dataBaseImpl.addNewsPiece(link, title, text, categories) }
 
     override fun addNewsSummary(company: Company, newsPiece: NewsPiece, summary: String) =
         transaction { dataBaseImpl.addNewsSummary(company, newsPiece, summary) }

@@ -12,7 +12,7 @@ import prod.prog.request.Request
 import prod.prog.request.source.database.CompanySource
 import prod.prog.request.source.database.NewsPiecesByCompanySource
 import prod.prog.request.transformer.LanguageModelTransformer
-import prod.prog.service.database.DataBaseService
+import prod.prog.service.database.DatabaseService
 import prod.prog.service.languageModel.LanguageModelService
 import prod.prog.service.supervisor.Supervisor
 import prod.prog.service.supervisor.solver.EmptySolver
@@ -36,9 +36,9 @@ class StepDefinitions {
 
         override fun name() = "LanguageModelDummy"
     }
-    private val dataBase = mockk<DataBaseService>().also {
+    private val dataBase = mockk<DatabaseService>().also {
         every { it.getNewsPiecesByCompany(any<Company>()) } answers { callOriginal() }
-        every { it.name() } answers { "DataBaseMock" }
+        every { it.name() } answers { "DatabaseMock" }
     }
 
     private var result = mutableMapOf<Company, Double>()

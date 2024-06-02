@@ -10,7 +10,7 @@ import prod.prog.service.database.entity.NewsSummaryEntity
 import prod.prog.service.database.table.CompanyTable
 import prod.prog.service.database.table.NewsPieceTable
 
-class DataBaseImpl(private val databaseURL: DatabaseURL) : DataBaseServiceMethods {
+class DatabaseImpl(private val databaseURL: DatabaseURL) : DatabaseServiceMethods {
     override fun getCompanyByName(name: String): Company? =
         CompanyEntity
             .find(CompanyTable.name eq name)
@@ -47,10 +47,12 @@ class DataBaseImpl(private val databaseURL: DatabaseURL) : DataBaseServiceMethod
         }
     }
 
-    override fun addNewsPiece(link: String, text: String) {
+    override fun addNewsPiece(link: String, title: String, text: String, categories: List<String>) {
         NewsPieceEntity.new {
             this.link = link
+            this.title = title
             this.text = text
+            this.categories = categories
         }
     }
 
