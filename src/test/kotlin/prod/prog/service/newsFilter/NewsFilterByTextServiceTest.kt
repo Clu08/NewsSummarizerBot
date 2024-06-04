@@ -14,7 +14,7 @@ class NewsFilterByTextServiceTest : StringSpec({
     val newsFilter = NewsFilterByTextService()
 
     "no info about company" {
-        val news = NewsPiece(link = "link", title = "title", text = "text", categories = listOf("category"))
+        val news = NewsPiece(link = "link", title = "title", text = "text")
         val company = Company(name = "yandex")
         val filterResult = newsFilter.isNewsContainsInfoAboutCompany(news, company)
 
@@ -22,7 +22,7 @@ class NewsFilterByTextServiceTest : StringSpec({
     }
 
     "info about company in title" {
-        val news = NewsPiece(link = "link", title = "wow yAnDeX", text = "text", categories = listOf("category"))
+        val news = NewsPiece(link = "link", title = "wow yAnDeX", text = "text")
         val company = Company(name = "yandex")
         val filterResult = newsFilter.isNewsContainsInfoAboutCompany(news, company)
 
@@ -30,15 +30,7 @@ class NewsFilterByTextServiceTest : StringSpec({
     }
 
     "info about company in text" {
-        val news = NewsPiece(link = "link", title = "title", text = "oh yyAndexx", categories = listOf("category"))
-        val company = Company(name = "yandex")
-        val filterResult = newsFilter.isNewsContainsInfoAboutCompany(news, company)
-
-        filterResult shouldBe true
-    }
-
-    "info about company in category" {
-        val news = NewsPiece(link = "link", title = "title", text = "text", categories = listOf("yandex"))
+        val news = NewsPiece(link = "link", title = "title", text = "oh yyAndexx")
         val company = Company(name = "yandex")
         val filterResult = newsFilter.isNewsContainsInfoAboutCompany(news, company)
 

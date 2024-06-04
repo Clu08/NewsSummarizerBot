@@ -1,31 +1,32 @@
 package prod.prog.service.rss
 
-import com.prof18.rssparser.RssParser
-import kotlinx.coroutines.runBlocking
+import org.w3c.dom.Element
 import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
 import prod.prog.dataTypes.rss.RssNewsLink
 import prod.prog.service.newsFilter.NewsFilterService
-import prod.prog.utils.RssDataConverterUtils.convertRssItemToNewsPiece
+import javax.xml.parsers.DocumentBuilder
 
 class RssServiceImpl(
     private val newsFilterService: NewsFilterService,
-    private val rssParser: RssParser,
+    private val documentBuilder: DocumentBuilder,
 ) : RssService {
 
     override fun getNewsByCompany(company: Company, rssNewsLinks: List<RssNewsLink>): List<NewsPiece> {
-        return runBlocking {
-            rssNewsLinks
-                .map { fetchNewsFromRssSource(it) }
-                .flatten()
-                .filter { news -> newsFilterService.isNewsContainsInfoAboutCompany(news, company) }
-        }
+        return rssNewsLinks
+            .map { fetchNewsFromRssSource(it) }
+            .flatten()
+            .filter { news -> newsFilterService.isNewsContainsInfoAboutCompany(news, company) }
     }
 
-    private suspend fun fetchNewsFromRssSource(rssNewsLink: RssNewsLink): List<NewsPiece> = rssParser
-        .getRssChannel(rssNewsLink.sourceUrl)
-        .items
-        .mapNotNull(::convertRssItemToNewsPiece)
+    private fun fetchNewsFromRssSource(rssNewsLink: RssNewsLink): List<NewsPiece> =
+        rssNewsLink.sourceUrl.openStream().use {
+            val sourceData = documentBuilder.parse(it).getElementsByTagName("item")
+            return@use (0 until sourceData.length)
+                .map { index -> sourceData.item(index) }
+                .filterIsInstance<Element>()
+                .map { newsItem -> rssNewsLink.newsParser(newsItem) }
+        }
 
     override fun name(): String = "RssServiceImpl"
 }
