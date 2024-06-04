@@ -1,59 +1,47 @@
 package prod.prog.service.rss
 
-import com.prof18.rssparser.RssParser
-import com.prof18.rssparser.model.RssChannel
 import common.UnitTest
-import io.kotest.common.runBlocking
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.mockk.every
 import io.mockk.mockk
-import prod.prog.common.mockedRssItem
+import io.mockk.spyk
 import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
 import prod.prog.dataTypes.rss.AvailableRssSources
 import prod.prog.service.newsFilter.NewsFilterByTextService
+import javax.xml.parsers.DocumentBuilder
 
 class RssServiceTest : StringSpec({
     tags(UnitTest)
     isolationMode = IsolationMode.InstancePerTest
 
-    val rssParser = mockk<RssParser>()
-
     val newsFilter = NewsFilterByTextService()
-    val rssService = RssServiceImpl(newsFilter, rssParser)
+    val documentBuilder = mockk<DocumentBuilder>()
+    val rssService = spyk(RssServiceImpl(newsFilter, documentBuilder), recordPrivateCalls = true)
 
     "fetch news about company from sources" {
-        val mockedNewsSource1 = listOf(
-            mockedRssItem("link1", "title1", "Yandex bad"),
-            mockedRssItem("link2", "title2", "Google good"),
+
+        val source1 = AvailableRssSources.LENTA.rssNewsLink
+        every { rssService invoke "fetchNewsFromRssSource" withArguments listOf(source1) } returns listOf(
+            NewsPiece("link1", "title1", "Yandex bad"),
+            NewsPiece("link2", "title2", "Google good"),
         )
 
-        val rssChannel1 = mockk<RssChannel>()
-        every { rssChannel1.items } returns mockedNewsSource1
-
-        val source1 = AvailableRssSources.RBK.rssNewsLink
-        every { runBlocking { rssParser.getRssChannel(eq(source1.sourceUrl)) } } returns rssChannel1
-
-        val mockedNewsSource2 = listOf(
-            mockedRssItem("link1", "title1", "Yandex good"),
-            mockedRssItem("link2", "title2", "Google bad"),
+        val source2 = AvailableRssSources.RBK.rssNewsLink
+        every { rssService invoke "fetchNewsFromRssSource" withArguments listOf(source2) } returns listOf(
+            NewsPiece("link1", "title1", "Yandex good"),
+            NewsPiece("link2", "title2", "Google bad"),
         )
-
-        val rssChannel2 = mockk<RssChannel>()
-        every { rssChannel2.items } returns mockedNewsSource2
-
-        val source2 = AvailableRssSources.LENTA.rssNewsLink
-        every { runBlocking { rssParser.getRssChannel(eq(source2.sourceUrl)) } } returns rssChannel2
 
         val rssSources = listOf(source1, source2)
         val yandexCompany = Company(name = "yandex")
         val newsAboutYandex = rssService.getNewsByCompany(yandexCompany, rssSources)
 
         val expectedNews = listOf(
-            NewsPiece(link = "link1", title = "title1", text = "Yandex bad"),
             NewsPiece(link = "link1", title = "title1", text = "Yandex good"),
+            NewsPiece(link = "link1", title = "title1", text = "Yandex bad"),
         )
 
         newsAboutYandex shouldContainExactlyInAnyOrder expectedNews
