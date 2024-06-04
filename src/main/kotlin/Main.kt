@@ -4,8 +4,6 @@ import prod.prog.actionProperties.contextFactory.print.PrintDebug
 import prod.prog.actionProperties.contextFactory.print.PrintError
 import prod.prog.actionProperties.contextFactory.print.PrintInfo
 import prod.prog.actionProperties.contextFactory.print.PrintTrace
-import prod.prog.dataTypes.Company
-import prod.prog.dataTypes.rss.AvailableRssSources
 import prod.prog.request.Request
 import prod.prog.request.RequestContext
 import prod.prog.request.resultHandler.IgnoreErrorHandler
@@ -14,13 +12,11 @@ import prod.prog.request.source.ConstantSource
 import prod.prog.request.transformer.IdTransformer
 import prod.prog.service.logger.log4j.Log4jLoggerService
 import prod.prog.service.logger.log4j.LogType
-import prod.prog.service.newsFilter.NewsFilterByTextService
-import prod.prog.service.rss.RssServiceImpl
+import prod.prog.service.manager.TelegramBot
 import prod.prog.service.supervisor.Supervisor
 import prod.prog.service.supervisor.solver.EmptySolver
 import prod.prog.service.supervisor.solver.actionSolver.LoggerSolver
 import prod.prog.service.supervisor.solver.requestSolver.SetUniqueIdSolver
-import javax.xml.parsers.DocumentBuilderFactory
 
 fun main() {
     val logger = Log4jLoggerService(LogType.MESSAGES)
@@ -73,13 +69,6 @@ fun main() {
     supervisor.before = LoggerSolver(logger, "started ", PrintDebug)
     supervisor.after = LoggerSolver(logger, "finished", PrintDebug)
 
-    val rss = RssServiceImpl(NewsFilterByTextService(), DocumentBuilderFactory.newInstance().newDocumentBuilder())
-    println(
-        rss.getNewsByCompany(
-            Company("россия"),
-            listOf(AvailableRssSources.RBK.rssNewsLink, AvailableRssSources.LENTA.rssNewsLink)
-        )
-    )
-    /*val telegramBot = TelegramBot(supervisor, telegramApiLogger)
-    telegramBot.start()*/
+    val telegramBot = TelegramBot(supervisor, telegramApiLogger)
+    telegramBot.start()
 }
