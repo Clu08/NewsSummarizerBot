@@ -12,11 +12,8 @@ import prod.prog.dataTypes.NewsSummary
 import prod.prog.dataTypes.rss.NewsPiecesByCompanyRssSource
 import prod.prog.dataTypes.rss.RssNewsLink
 import prod.prog.request.Request
-import prod.prog.request.transformer.IdTransformer
-import prod.prog.request.transformer.database.NewsPiecesByCompanyDB
 import prod.prog.request.transformer.LanguageModelTransformer
 import prod.prog.request.transformer.ParallelListTransformer
-import prod.prog.request.transformer.Transformer
 import prod.prog.request.transformer.database.CompanyByNameDB
 import prod.prog.request.transformer.database.NewsSummariesByCompanyDB
 import prod.prog.service.database.DatabaseService
@@ -28,13 +25,13 @@ import prod.prog.service.supervisor.solver.EmptySolver
 import javax.xml.parsers.DocumentBuilder
 
 class StepDefinitions {
-    val supervisor = Supervisor(
+    private val supervisor = Supervisor(
         before = EmptySolver(),
         after = EmptySolver(),
         initContext = EmptySolver()
     )
 
-    val languageModelStub = object : LanguageModelService {
+    private val languageModelStub = object : LanguageModelService {
         override fun summarizeNewsPieceByCompany(company: Company, newsPiece: NewsPiece): NewsSummary =
             NewsSummary(
                 company, newsPiece, when {
@@ -56,7 +53,7 @@ class StepDefinitions {
     private val documentBuilder = mockk<DocumentBuilder>()
     private val rssService = spyk(RssServiceImpl(newsFilter, documentBuilder), recordPrivateCalls = true)
 
-    private var campaignsResult = mutableMapOf<Company, Double>()
+    private var campaignsResult = mutableMapOf<String, Double>()
 
     private var newsByCompany = mutableMapOf<Company, List<NewsPiece>>()
 
@@ -110,7 +107,7 @@ class StepDefinitions {
                     CompanyByNameDB(database)
                         .andThen(NewsSummariesByCompanyDB(database))
                 )(name).get(supervisor)
-            result[name] = summaries.map { it.summary.toDouble() }.average()
+            campaignsResult[name] = summaries.map { it.summary.toDouble() }.average()
         }
     }
 
@@ -127,7 +124,7 @@ class StepDefinitions {
         compare: (Double, Double) -> Boolean,
         otherCompany: Company,
     ) {
-        assert(compare(result[company.name]!!, result[otherCompany.name]!!))
+        assert(compare(campaignsResult[company.name]!!, campaignsResult[otherCompany.name]!!))
     }
 
     @Then("{company} should have news:")
