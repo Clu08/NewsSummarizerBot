@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.9.23"
     id("com.adarshr.test-logger") version "4.0.0"
+    application
 }
 
 group = "prod.prog"
@@ -16,6 +17,10 @@ dependencies {
     implementation("com.github.vjames19.kotlin-futures:kotlin-futures-jdk8:1.2.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
+
+    // gpt
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.google.code.gson:gson:2.8.9")
 
     // logging
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.4.0")
@@ -75,4 +80,8 @@ task<Test>("integration-test") {
 
 kotlin {
     jvmToolchain(21)
+}
+
+application {
+    mainClass.set("prod.prog.MainKt")
 }

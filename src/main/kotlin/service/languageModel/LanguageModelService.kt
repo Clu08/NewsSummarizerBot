@@ -6,7 +6,5 @@ import prod.prog.dataTypes.NewsSummary
 import prod.prog.service.Service
 
 interface LanguageModelService : Service {
-//    todo functions to work with language model
-
     fun summarizeNewsPieceByCompany(company: Company, newsPiece: NewsPiece): NewsSummary
 }
