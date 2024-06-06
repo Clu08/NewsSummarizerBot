@@ -10,6 +10,7 @@ import prod.prog.request.resultHandler.IgnoreHandler
 import prod.prog.request.resultHandler.ResultHandler
 import prod.prog.request.source.ConstantSource
 import prod.prog.request.source.Source
+import prod.prog.request.source.invoke
 import prod.prog.request.transformer.IdTransformer
 import prod.prog.request.transformer.Transformer
 import prod.prog.service.supervisor.Supervisor
@@ -45,6 +46,7 @@ data class Request<T, R>(
         var change = Context()
         // todo add test for context propagating
         sourceContext = supervisor.before(sourceContext)
+
         return source().map {
             change = supervisor.after(sourceContext).diff(sourceContext)
             transformerContext = supervisor.before(transformerContext.add(change))

@@ -44,3 +44,6 @@ bin/
 
 ### dotenv-kotlin ###
 .env
+
+### database ###
+/database/

@@ -8,6 +8,7 @@ import io.kotest.property.exhaustive.exhaustive
 import kotlinx.coroutines.future.await
 import prod.prog.common.MutableSingleton
 import prod.prog.request.source.ConstantSource
+import prod.prog.request.source.invoke
 
 class IdTransformerTest : StringSpec({
     tags(UnitTest)
