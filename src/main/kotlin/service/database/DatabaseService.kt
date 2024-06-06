@@ -10,7 +10,7 @@ import prod.prog.service.database.table.CompanyTable
 import prod.prog.service.database.table.NewsPieceTable
 import prod.prog.service.database.table.NewsSummaryTable
 
-class DatabaseService(private val dataBaseImpl: DatabaseImpl) : DatabaseServiceMethods {
+class DatabaseService(private val databaseImpl: DatabaseImpl) : DatabaseServiceMethods {
     init {
         Database.connect(
             url = databaseURL(),
@@ -21,31 +21,34 @@ class DatabaseService(private val dataBaseImpl: DatabaseImpl) : DatabaseServiceM
         }
     }
 
+    override fun getAllCompanies(): Iterable<Company> =
+        transaction { databaseImpl.getAllCompanies() }
+
     override fun getCompanyByName(name: String): Company? =
-        transaction { dataBaseImpl.getCompanyByName(name) }
+        transaction { databaseImpl.getCompanyByName(name) }
 
     override fun getNewsPieceByLink(link: String): NewsPiece? =
-        transaction { dataBaseImpl.getNewsPieceByLink(link) }
+        transaction { databaseImpl.getNewsPieceByLink(link) }
 
     override fun getNewsSummariesByCompany(company: Company): Iterable<NewsSummary> =
-        transaction { dataBaseImpl.getNewsSummariesByCompany(company) }
+        transaction { databaseImpl.getNewsSummariesByCompany(company) }
 
     override fun getNewsSummariesByNewsPiece(newsPiece: NewsPiece): Iterable<NewsSummary> =
-        transaction { dataBaseImpl.getNewsSummariesByNewsPiece(newsPiece) }
+        transaction { databaseImpl.getNewsSummariesByNewsPiece(newsPiece) }
 
     override fun getNewsPiecesByCompany(company: Company): Iterable<NewsPiece> =
-        transaction { dataBaseImpl.getNewsPiecesByCompany(company) }
+        transaction { databaseImpl.getNewsPiecesByCompany(company) }
 
     override fun addCompany(name: String) =
-        transaction { dataBaseImpl.addCompany(name) }
+        transaction { databaseImpl.addCompany(name) }
 
     override fun addNewsPiece(link: String, title: String, text: String, categories: List<String>) =
-        transaction { dataBaseImpl.addNewsPiece(link, title, text, categories) }
+        transaction { databaseImpl.addNewsPiece(link, title, text, categories) }
 
     override fun addNewsSummary(company: Company, newsPiece: NewsPiece, summary: String) =
-        transaction { dataBaseImpl.addNewsSummary(company, newsPiece, summary) }
+        transaction { databaseImpl.addNewsSummary(company, newsPiece, summary) }
 
-    override fun databaseURL(): String = dataBaseImpl.databaseURL()
+    override fun databaseURL(): String = databaseImpl.databaseURL()
 
-    override fun name() = dataBaseImpl.name()
+    override fun name() = databaseImpl.name()
 }

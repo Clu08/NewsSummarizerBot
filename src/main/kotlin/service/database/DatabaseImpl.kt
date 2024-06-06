@@ -11,6 +11,11 @@ import prod.prog.service.database.table.CompanyTable
 import prod.prog.service.database.table.NewsPieceTable
 
 class DatabaseImpl(private val databaseURL: DatabaseURL) : DatabaseServiceMethods {
+    override fun getAllCompanies(): Iterable<Company> =
+        CompanyEntity
+            .all()
+            .map(CompanyEntity::toCompany)
+
     override fun getCompanyByName(name: String): Company? =
         CompanyEntity
             .find(CompanyTable.name eq name)

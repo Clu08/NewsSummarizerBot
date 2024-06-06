@@ -8,7 +8,7 @@ import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
 import prod.prog.dataTypes.NewsSummary
 
-class DatabaseTest : StringSpec({
+class DatabaseServiceTest : StringSpec({
     tags(UnitTest)
 
     val company1 = Company("Company1")

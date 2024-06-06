@@ -10,7 +10,7 @@ class NewsPiecesByCompanyRssSource(
     private val company: Company,
     private val rssNewsLinks: List<RssNewsLink>,
 ) : Source<List<NewsPiece>>() {
-    override fun getSource(): List<NewsPiece> =
+    override fun invoke(t: Unit): List<NewsPiece> =
         rssService.getNewsByCompany(company, rssNewsLinks)
 
     override fun message(): String =

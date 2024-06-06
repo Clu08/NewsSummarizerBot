@@ -6,6 +6,7 @@ import prod.prog.dataTypes.NewsSummary
 import prod.prog.service.Service
 
 interface DatabaseServiceMethods : Service {
+    fun getAllCompanies(): Iterable<Company>
     fun getCompanyByName(name: String): Company?
     fun getNewsPieceByLink(link: String): NewsPiece?
     fun getNewsSummariesByCompany(company: Company): Iterable<NewsSummary>

@@ -9,9 +9,13 @@ import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
 import prod.prog.dataTypes.NewsSummary
 import prod.prog.request.Request
-import prod.prog.request.source.database.CompanySource
-import prod.prog.request.source.database.NewsPiecesByCompanySource
+import prod.prog.request.transformer.IdTransformer
+import prod.prog.request.transformer.database.NewsPiecesByCompanyDB
 import prod.prog.request.transformer.LanguageModelTransformer
+import prod.prog.request.transformer.ParallelListTransformer
+import prod.prog.request.transformer.Transformer
+import prod.prog.request.transformer.database.CompanyByNameDB
+import prod.prog.request.transformer.database.NewsSummariesByCompanyDB
 import prod.prog.service.database.DatabaseService
 import prod.prog.service.languageModel.LanguageModelService
 import prod.prog.service.supervisor.Supervisor
@@ -36,54 +40,59 @@ class StepDefinitions {
 
         override fun name() = "LanguageModelDummy"
     }
-    private val dataBase = mockk<DatabaseService>().also {
+    private val database = mockk<DatabaseService>().also {
         every { it.getNewsPiecesByCompany(any<Company>()) } answers { callOriginal() }
         every { it.name() } answers { "DatabaseMock" }
     }
 
-    private var result = mutableMapOf<Company, Double>()
+    private var result = mutableMapOf<String, Double>()
 
     @Given("database has these companies:")
     fun `database has these companies`(companies: List<Company>) {
         for (company in companies)
-            every { dataBase.getCompanyByName(company.name) } returns company
+            every { database.getCompanyByName(company.name) } returns company
     }
 
     @Given("database has these news:")
     fun `database has these news`(newsPieces: List<NewsPiece>) {
         for (newsPiece in newsPieces)
-            every { dataBase.getNewsPieceByLink(newsPiece.link) } returns newsPiece
+            every { database.getNewsPieceByLink(newsPiece.link) } returns newsPiece
     }
 
     @Given("there are such references:")
     fun `there are such references`(references: List<Map<String, String>>) {
-        val grouped = references.groupBy { Company(it["name"]!!) }
+        val groupedNewsPieces = references.groupBy { Company(it["name"]!!) }
             .mapValues { (_, list) ->
                 list.map { item -> NewsPiece(item["link"]!!, item["title"]!!, item["text"]!!, emptyList()) }
             }
-        for ((company, newsList) in grouped)
-            every { dataBase.getNewsPiecesByCompany(company) } returns newsList
+        for ((company, newsList) in groupedNewsPieces)
+            every { database.getNewsPiecesByCompany(company) } returns newsList
+
+        val groupedSummaries =
+            Request.basicTransformerRequest(
+                ParallelListTransformer(LanguageModelTransformer(languageModelStub))
+            )(references.map { item ->
+                Pair(
+                    Company(item["name"]!!),
+                    NewsPiece(item["link"]!!, item["title"]!!, item["text"]!!, emptyList())
+                )
+            })
+                .get(supervisor)
+                .groupBy { it.company }
+
+        for ((company, newsList) in groupedSummaries)
+            every { database.getNewsSummariesByCompany(company) } returns newsList
     }
 
     @When("asked about {companyList}")
     fun `asked about companies`(names: List<String>) {
         for (name in names) {
-            val (company, news) =
-                Request.basicSourceRequest(
-                    CompanySource(dataBase, name).andThenWithPair { company ->
-                        NewsPiecesByCompanySource(dataBase, company)
-                    }
-                ).get(supervisor)
-
-            val summaries = news.map { newsPiece ->
+            val summaries =
                 Request.basicTransformerRequest(
-                    LanguageModelTransformer(languageModelStub)
-                )(Pair(company, newsPiece))
-                    .get(supervisor)
-                    .summary
-                    .toInt()
-            }
-            result[company] = summaries.average()
+                    CompanyByNameDB(database)
+                        .andThen(NewsSummariesByCompanyDB(database))
+                )(name).get(supervisor)
+            result[name] = summaries.map { it.summary.toDouble() }.average()
         }
     }
 
@@ -93,6 +102,6 @@ class StepDefinitions {
         compare: (Double, Double) -> Boolean,
         otherCompany: Company,
     ) {
-        assert(compare(result[company]!!, result[otherCompany]!!))
+        assert(compare(result[company.name]!!, result[otherCompany.name]!!))
     }
 }
