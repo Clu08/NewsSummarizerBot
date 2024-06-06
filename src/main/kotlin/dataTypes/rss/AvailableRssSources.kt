@@ -38,15 +38,6 @@ private class RbkRssNewsLink : RssNewsLink("https://rssexport.rbc.ru/rbcnews/new
     }
 }
 
-private class VedomostiRssNewsLink : RssNewsLink("https://www.vedomosti.ru/rss/news.xml") {
-    override fun newsParser(newsData: Element): NewsPiece {
-        return NewsPiece(
-            link = newsData.getElementsByTagName("link").item(0)?.textContent ?: "",
-            title = newsData.getElementsByTagName("title").item(0)?.textContent ?: "",
-            text = "",
-        )
-    }
-}
 
 private class RamblerRssNewsLink : RssNewsLink("https://finance.rambler.ru/rss/business/") {
     override fun newsParser(newsData: Element): NewsPiece {
@@ -59,16 +50,6 @@ private class RamblerRssNewsLink : RssNewsLink("https://finance.rambler.ru/rss/b
 }
 
 private class KommersantRssNewsLink : RssNewsLink("https://www.kommersant.ru/RSS/news.xml") {
-    override fun newsParser(newsData: Element): NewsPiece {
-        return NewsPiece(
-            link = newsData.getElementsByTagName("link").item(0)?.textContent ?: "",
-            title = newsData.getElementsByTagName("title").item(0)?.textContent ?: "",
-            text = getCharacterDataFromElement(newsData.getElementsByTagName("description").item(0) as? Element),
-        )
-    }
-}
-
-private class BBCRssNewsLink : RssNewsLink("https://feeds.bbci.co.uk/news/world/rss.xml") {
     override fun newsParser(newsData: Element): NewsPiece {
         return NewsPiece(
             link = newsData.getElementsByTagName("link").item(0)?.textContent ?: "",
