@@ -6,6 +6,7 @@ import com.github.kotlintelegrambot.dispatcher.callbackQuery
 import io.github.cdimascio.dotenv.dotenv
 import prod.prog.actionProperties.contextFactory.print.PrintInfo
 import com.github.kotlintelegrambot.dispatcher.command
+import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.*
 import com.github.kotlintelegrambot.entities.keyboard.InlineKeyboardButton
 import prod.prog.dataTypes.Company
@@ -14,16 +15,16 @@ import prod.prog.dataTypes.rss.NewsPiecesByCompanyRssSource
 import prod.prog.request.resultHandler.IgnoreErrorHandler
 import prod.prog.request.resultHandler.IgnoreHandler
 import prod.prog.request.transformer.IdTransformer
+import prod.prog.service.database.DatabaseService
 import prod.prog.service.logger.LoggerService
 import prod.prog.service.rss.RssService
 import prod.prog.service.supervisor.Supervisor
 import java.io.Serializable
 
-class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, private val rssService : RssService) : RequestManager(supervisor) {
+class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, private val rssService : RssService, private val dataBase : DatabaseService) : RequestManager(supervisor) {
     override fun name() = "TelegramBot"
     private val telegramApiToken = dotenv()["TELEGRAM_API_TOKEN"]
     private val telegramApiAddress = dotenv()["TELEGRAM_API_ADDRESS"]
-    private val config = ConfigLoader.loadConfig()
     private val telegramBot = bot {
         token = telegramApiToken
         dispatch {
@@ -39,13 +40,54 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
                 logMessage(update.message!!)
                 logger.log(PrintInfo, "Received command: /list")
                 val chatId = update.message?.chat?.id ?: return@command
-                val buttons = config.buttons.map { InlineKeyboardButton.CallbackData(it.displayName, it.displayName) }
+                val buttons = dataBase.getAllCompanies().map { InlineKeyboardButton.CallbackData(it.name, it.name)  }
                 val inlineKeyboardMarkup = InlineKeyboardMarkup.create(buttons.chunked(1))
                 bot.sendMessage(
                     chatId = ChatId.fromId(chatId),
                     text = "Choose a company:",
                     replyMarkup = inlineKeyboardMarkup
                 )
+            }
+
+            command("add") {
+                val chatId = update.message?.chat?.id ?: return@command
+                logMessage(update.message!!)
+                logger.log(PrintInfo, "Received command: /add")
+                bot.sendMessage(
+                    chatId = ChatId.fromId(chatId),
+                    text = "Please enter the name of the company you want to add."
+                )
+            }
+
+            text {
+                val chatId = message.chat.id
+                val text = message.text ?: ""
+                if (text.startsWith("/")) return@text // Ignore other commands
+
+                val companyName = text.trim()
+                if (companyName.isEmpty() || companyName.any { !it.isLetterOrDigit() && it != '-' && !it.isWhitespace() }) {
+                    bot.sendMessage(
+                        chatId = ChatId.fromId(chatId),
+                        text = "Invalid company name. Please enter a valid company name."
+                    )
+                } else {
+                    if (dataBase.getCompanyByName(companyName) == null) {
+                        dataBase.addCompany(companyName)
+                        bot.sendMessage(
+                            chatId = ChatId.fromId(chatId),
+                            text = "Company \"$companyName\" added successfully!"
+                        )
+                        logMessage(message)
+                        logger.log(PrintInfo, "Added company: $companyName")
+                    } else {
+                        bot.sendMessage(
+                            chatId = ChatId.fromId(chatId),
+                            text = "Company \"$companyName\" already exists in the database."
+                        )
+                        logMessage(message)
+                        logger.log(PrintInfo, "Company already exists: $companyName")
+                    }
+                }
             }
 
             callbackQuery {
@@ -92,7 +134,7 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
         logger.log(PrintInfo, "polling stopped for $telegramApiAddress")
     }
 
-    fun sendLargeMessage(chatId: ChatId, textList: List<Serializable>, beg: Int = 0) {
+    private fun sendLargeMessage(chatId: ChatId, textList: List<Serializable>, beg: Int = 0) {
         if (beg >= textList.size) {
             return
         }

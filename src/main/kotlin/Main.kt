@@ -8,8 +8,12 @@ import prod.prog.request.resultHandler.IgnoreErrorHandler
 import prod.prog.request.resultHandler.IgnoreHandler
 import prod.prog.request.source.ConstantSource
 import prod.prog.request.transformer.IdTransformer
+import prod.prog.service.database.DatabaseImpl
+import prod.prog.service.database.DatabaseService
+import prod.prog.service.database.DatabaseURL
 import prod.prog.service.logger.log4j.Log4jLoggerService
 import prod.prog.service.logger.log4j.LogType
+import prod.prog.service.manager.DefaultCompanies
 import prod.prog.service.manager.TelegramBot
 import prod.prog.service.newsFilter.NewsFilterByTextService
 import prod.prog.service.rss.RssServiceImpl
@@ -86,7 +90,9 @@ fun main() {
     val newsFilter = NewsFilterByTextService()
     val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
     val rssService = RssServiceImpl(newsFilter, documentBuilder)
-    val telegramBot = TelegramBot(supervisor, telegramApiLogger, rssService)
+    val dataBase = DatabaseService(DatabaseImpl(DatabaseURL.IN_MEMORY))
+    DefaultCompanies.entries.map { dataBase.addCompany(it.displayName) }
+    val telegramBot = TelegramBot(supervisor, telegramApiLogger, rssService, dataBase)
     telegramBot.start()
     Thread.sleep(3_000)
     timer.stop()
