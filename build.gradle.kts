@@ -15,6 +15,7 @@ dependencies {
     implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:telegram:6.1.0")
     implementation("com.github.vjames19.kotlin-futures:kotlin-futures-jdk8:1.2.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
 
     // logging
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.4.0")
@@ -25,6 +26,7 @@ dependencies {
     implementation("io.sentry:sentry-log4j2:7.9.0")
     implementation("io.sentry:sentry-kotlin-extensions:7.9.0")
 
+    // testing
     testImplementation("io.kotest:kotest-runner-junit5:5.8.1")
     testImplementation("io.kotest:kotest-assertions-core:5.8.1")
     testImplementation("io.kotest:kotest-property:5.8.1")
