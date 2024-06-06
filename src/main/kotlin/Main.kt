@@ -18,7 +18,6 @@ import prod.prog.service.supervisor.Supervisor
 import prod.prog.service.supervisor.solver.EmptySolver
 import prod.prog.service.supervisor.solver.actionSolver.LoggerSolver
 import prod.prog.service.supervisor.solver.requestSolver.SetUniqueIdSolver
-import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 
 

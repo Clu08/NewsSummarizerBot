@@ -97,7 +97,7 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
             return
         }
         val maxLen = 4095
-        var text = StringBuilder()
+        val text = StringBuilder()
 
         for (i in beg until textList.size) {
             val newLine = textList[i].toString()
