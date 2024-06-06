@@ -67,7 +67,7 @@ class RequestTest : StringSpec({
     every { after(context.resultHandlerContext) } returns context.resultHandlerContext
     every { after(context.errorHandlerContext) } returns context.errorHandlerContext
 
-    every { source(Unit) } returns init
+    every { source() } returns Future{init}
     every { transformer(any<Int>()) } returns correct
     justRun { resultHandler(any<Int>()) }
     justRun { errorHandler(any<Throwable>()) }
@@ -79,7 +79,7 @@ class RequestTest : StringSpec({
     }
 
     "run returns correct result on error in source" {
-        every { source(Unit) } throws (error)
+        every { source() } throws error
 
         val result = request.run(supervisor).recoverWith { Future { wrong } }
 
@@ -125,7 +125,7 @@ class RequestTest : StringSpec({
     }
 
     "run uses expected order with error in source" {
-        every { source(Unit) } throws (error)
+        every { source() } throws error
 
         request.run(supervisor)
 
@@ -170,7 +170,7 @@ class RequestTest : StringSpec({
     }
 
     "run uses expected order with error in error handling" {
-        every { source(Unit) } throws (error)
+        every { source() } throws error
         every { errorHandler(any<Throwable>()) } throws error
 
         request.run(supervisor)
