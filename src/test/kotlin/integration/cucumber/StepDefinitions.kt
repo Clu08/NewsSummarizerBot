@@ -5,9 +5,12 @@ import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
 import prod.prog.dataTypes.NewsSummary
+import prod.prog.dataTypes.rss.NewsPiecesByCompanyRssSource
+import prod.prog.dataTypes.rss.RssNewsLink
 import prod.prog.request.Request
 import prod.prog.request.transformer.IdTransformer
 import prod.prog.request.transformer.database.NewsPiecesByCompanyDB
@@ -18,8 +21,11 @@ import prod.prog.request.transformer.database.CompanyByNameDB
 import prod.prog.request.transformer.database.NewsSummariesByCompanyDB
 import prod.prog.service.database.DatabaseService
 import prod.prog.service.languageModel.LanguageModelService
+import prod.prog.service.newsFilter.NewsFilterByTextService
+import prod.prog.service.rss.RssServiceImpl
 import prod.prog.service.supervisor.Supervisor
 import prod.prog.service.supervisor.solver.EmptySolver
+import javax.xml.parsers.DocumentBuilder
 
 class StepDefinitions {
     val supervisor = Supervisor(
@@ -27,6 +33,7 @@ class StepDefinitions {
         after = EmptySolver(),
         initContext = EmptySolver()
     )
+
     val languageModelStub = object : LanguageModelService {
         override fun summarizeNewsPieceByCompany(company: Company, newsPiece: NewsPiece): NewsSummary =
             NewsSummary(
@@ -45,7 +52,13 @@ class StepDefinitions {
         every { it.name() } answers { "DatabaseMock" }
     }
 
-    private var result = mutableMapOf<String, Double>()
+    private val newsFilter = NewsFilterByTextService()
+    private val documentBuilder = mockk<DocumentBuilder>()
+    private val rssService = spyk(RssServiceImpl(newsFilter, documentBuilder), recordPrivateCalls = true)
+
+    private var campaignsResult = mutableMapOf<Company, Double>()
+
+    private var newsByCompany = mutableMapOf<Company, List<NewsPiece>>()
 
     @Given("database has these companies:")
     fun `database has these companies`(companies: List<Company>) {
@@ -84,6 +97,11 @@ class StepDefinitions {
             every { database.getNewsSummariesByCompany(company) } returns newsList
     }
 
+    @Given("rss source {rssLink} returns these news:")
+    fun `rss link has these news`(rssLink: RssNewsLink, news: List<NewsPiece>) {
+        every { rssService invoke "fetchNewsFromRssSource" withArguments listOf(rssLink) } returns news
+    }
+
     @When("asked about {companyList}")
     fun `asked about companies`(names: List<String>) {
         for (name in names) {
@@ -96,6 +114,13 @@ class StepDefinitions {
         }
     }
 
+    @When("asked news about {company} from rss sources {rssLinkList}")
+    fun `asked about company news`(company: Company, rssSources: List<RssNewsLink>) {
+        newsByCompany[company] = Request.basicSourceRequest(
+            NewsPiecesByCompanyRssSource(rssService, company, rssSources)
+        ).get(supervisor)
+    }
+
     @Then("{company} should be {compare} {company}")
     fun `company should be better then other`(
         company: Company,
@@ -103,5 +128,13 @@ class StepDefinitions {
         otherCompany: Company,
     ) {
         assert(compare(result[company.name]!!, result[otherCompany.name]!!))
+    }
+
+    @Then("{company} should have news:")
+    fun `company should have those news`(
+        company: Company,
+        news: List<NewsPiece>,
+    ) {
+        assert(newsByCompany[company]!!.containsAll(news))
     }
 }
