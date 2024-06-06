@@ -2,12 +2,16 @@ package prod.prog
 
 import prod.prog.actionProperties.contextFactory.print.*
 import prod.prog.configuration.ApplicationConfiguration
+import prod.prog.dataTypes.Company
+import prod.prog.dataTypes.NewsPiece
 import prod.prog.request.Request
 import prod.prog.request.RequestContext
 import prod.prog.request.resultHandler.IgnoreErrorHandler
 import prod.prog.request.resultHandler.IgnoreHandler
 import prod.prog.request.source.ConstantSource
 import prod.prog.request.transformer.IdTransformer
+import prod.prog.request.transformer.LanguageModelTransformer
+import prod.prog.service.languageModel.YandexGptLanguageModel
 import prod.prog.service.logger.log4j.Log4jLoggerService
 import prod.prog.service.logger.log4j.LogType
 import prod.prog.service.manager.TelegramBot
@@ -19,6 +23,22 @@ import prod.prog.service.supervisor.solver.requestSolver.SetUniqueIdSolver
 
 
 fun main() {
+
+    val languageModel = YandexGptLanguageModel()
+
+    println(
+        Request.basicTransformerRequest(LanguageModelTransformer(languageModel))(
+            Pair(
+                Company("Nvidia"),
+                NewsPiece(
+                    "https://habr.com/ru/news/818993/",
+                    "Nvidia анонсировала ИИ-помощника Project G-Assist для геймеров",
+                    "На выставке Computex 2024 Nvidia представила Project G-Assist — технологию искусственного интеллекта на базе RTX, которая обеспечит геймерам контекстно-зависимую помощь в компьютерных играх и приложениях. Она охватывает миллионы руководств."
+                )
+            )
+        )
+    )
+
     ApplicationConfiguration().initApplication()
     val logger = Log4jLoggerService(LogType.MESSAGES)
     val telegramApiLogger = Log4jLoggerService(LogType.TELEGRAM_API)
