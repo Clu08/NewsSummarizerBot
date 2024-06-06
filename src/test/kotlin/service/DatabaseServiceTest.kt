@@ -1,4 +1,4 @@
-package prod.prog.service.database
+package prod.prog.service
 
 import common.UnitTest
 import io.kotest.core.spec.style.StringSpec
@@ -7,6 +7,9 @@ import io.kotest.matchers.shouldBe
 import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
 import prod.prog.dataTypes.NewsSummary
+import prod.prog.service.database.DatabaseImpl
+import prod.prog.service.database.DatabaseService
+import prod.prog.service.database.DatabaseURL
 
 class DatabaseServiceTest : StringSpec({
     tags(UnitTest)
