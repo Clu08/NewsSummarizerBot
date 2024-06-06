@@ -44,7 +44,7 @@ private class RamblerRssNewsLink : RssNewsLink("https://finance.rambler.ru/rss/b
         return NewsPiece(
             link = newsData.getElementsByTagName("link").item(0)?.textContent ?: "",
             title = newsData.getElementsByTagName("title").item(0)?.textContent ?: "",
-            text = getCharacterDataFromElement(newsData.getElementsByTagName("description").item(0) as? Element),
+            text = newsData.getElementsByTagName("description").item(0)?.textContent ?: ""
         )
     }
 }
@@ -54,7 +54,7 @@ private class KommersantRssNewsLink : RssNewsLink("https://www.kommersant.ru/RSS
         return NewsPiece(
             link = newsData.getElementsByTagName("link").item(0)?.textContent ?: "",
             title = newsData.getElementsByTagName("title").item(0)?.textContent ?: "",
-            text = getCharacterDataFromElement(newsData.getElementsByTagName("description").item(0) as? Element),
+            text = newsData.getElementsByTagName("description").item(0)?.textContent ?: ""
         )
     }
 }

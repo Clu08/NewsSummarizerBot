@@ -119,7 +119,8 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
         telegramBot.setMyCommands(
             listOf(
                 BotCommand(command = "start", description = "Start the bot"),
-                BotCommand(command = "list", description = "List available companies")
+                BotCommand(command = "list", description = "List available companies"),
+                BotCommand(command = "add", description = "Add company name to list")
             )
         )
     }
