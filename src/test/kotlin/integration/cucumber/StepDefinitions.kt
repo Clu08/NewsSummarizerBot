@@ -63,7 +63,7 @@ class StepDefinitions {
     fun `there are such references`(references: List<Map<String, String>>) {
         val groupedNewsPieces = references.groupBy { Company(it["name"]!!) }
             .mapValues { (_, list) ->
-                list.map { item -> NewsPiece(item["link"]!!, item["title"]!!, item["text"]!!, emptyList()) }
+                list.map { item -> NewsPiece(item["link"]!!, item["title"]!!, item["text"]!!) }
             }
         for ((company, newsList) in groupedNewsPieces)
             every { database.getNewsPiecesByCompany(company) } returns newsList

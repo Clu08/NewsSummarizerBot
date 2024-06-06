@@ -21,7 +21,7 @@ class CucumberDataTransformers {
 
     @DataTableType
     fun newsPieceTransformer(entry: Map<String?, String?>) =
-        NewsPiece("news/${randomId()}", entry["title"]!!, entry["text"]!!, emptyList())
+        NewsPiece("news/${randomId()}", entry["title"]!!, entry["text"]!!)
 
     @ParameterType("better then|same as|worse then")
     fun compare(string: String): (Double, Double) -> Boolean =

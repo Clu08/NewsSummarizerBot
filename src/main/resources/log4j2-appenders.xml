@@ -9,4 +9,5 @@
     <Console name="CONSOLE" target="SYSTEM_OUT">
         <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level - %msg%n"/>
     </Console>
+    <Sentry name="SENTRY" minimumBreadcrumbLevel="DEBUG" minimumEventLevel="WARN"/>
 </Appenders>

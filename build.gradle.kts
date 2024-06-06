@@ -15,15 +15,16 @@ dependencies {
     implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:telegram:6.1.0")
     implementation("com.github.vjames19.kotlin-futures:kotlin-futures-jdk8:1.2.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
 
-    // logging and monitoring
+    // logging
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.4.0")
     implementation("org.apache.logging.log4j:log4j-core:2.23.1")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-
-    // rss
-    implementation("com.prof18.rssparser:rssparser:6.0.7")
+    // monitoring
+    implementation("io.sentry:sentry:7.9.0")
+    implementation("io.sentry:sentry-log4j2:7.9.0")
+    implementation("io.sentry:sentry-kotlin-extensions:7.9.0")
 
     // database
     val exposedVersion = "0.50.0"
