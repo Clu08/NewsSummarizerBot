@@ -11,6 +11,7 @@ import prod.prog.request.transformer.IdTransformer
 import prod.prog.service.logger.log4j.Log4jLoggerService
 import prod.prog.service.logger.log4j.LogType
 import prod.prog.service.manager.TelegramBot
+import prod.prog.service.manager.TimerManager
 import prod.prog.service.supervisor.Supervisor
 import prod.prog.service.supervisor.solver.EmptySolver
 import prod.prog.service.supervisor.solver.actionSolver.LoggerSolver
@@ -75,5 +76,12 @@ fun main() {
 
     request.run(supervisor)
     val telegramBot = TelegramBot(supervisor, telegramApiLogger)
+
+    val timer = TimerManager(supervisor, logger, "print", 500) {
+        println("!")
+    }
+    timer.start()
     telegramBot.start()
+    Thread.sleep(3_000)
+    timer.stop()
 }
