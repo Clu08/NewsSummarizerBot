@@ -5,29 +5,34 @@ import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
 import prod.prog.dataTypes.NewsSummary
+import prod.prog.dataTypes.rss.NewsPiecesByCompanyRssSource
+import prod.prog.dataTypes.rss.RssNewsLink
 import prod.prog.request.Request
-import prod.prog.request.transformer.IdTransformer
-import prod.prog.request.transformer.database.NewsPiecesByCompanyDB
 import prod.prog.request.transformer.LanguageModelTransformer
-import prod.prog.request.transformer.Transformer
 import prod.prog.request.transformer.Transformer.Companion.forEach
 import prod.prog.request.transformer.database.CompanyByNameDB
 import prod.prog.request.transformer.database.NewsSummariesByCompanyDB
 import prod.prog.service.database.DatabaseService
 import prod.prog.service.languageModel.LanguageModelService
+import prod.prog.service.logger.log4j.Log4jLoggerService
+import prod.prog.service.newsFilter.NewsFilterByTextService
+import prod.prog.service.rss.RssServiceImpl
 import prod.prog.service.supervisor.Supervisor
 import prod.prog.service.supervisor.solver.EmptySolver
+import javax.xml.parsers.DocumentBuilder
 
 class StepDefinitions {
-    val supervisor = Supervisor(
+    private val supervisor = Supervisor(
         before = EmptySolver(),
         after = EmptySolver(),
         initContext = EmptySolver()
     )
-    val languageModelStub = object : LanguageModelService {
+
+    private val languageModelStub = object : LanguageModelService {
         override fun summarizeNewsPieceByCompany(company: Company, newsPiece: NewsPiece): NewsSummary =
             NewsSummary(
                 company, newsPiece, when {
@@ -45,7 +50,14 @@ class StepDefinitions {
         every { it.name() } answers { "DatabaseMock" }
     }
 
-    private var result = mutableMapOf<String, Double>()
+    private val logger = mockk<Log4jLoggerService>()
+    private val newsFilter = NewsFilterByTextService()
+    private val documentBuilder = mockk<DocumentBuilder>()
+    private val rssService = spyk(RssServiceImpl(logger, newsFilter, documentBuilder), recordPrivateCalls = true)
+
+    private var companiesResult = mutableMapOf<String, Double>()
+
+    private var newsByCompany = mutableMapOf<Company, List<NewsPiece>>()
 
     @Given("database has these companies:")
     fun `database has these companies`(companies: List<Company>) {
@@ -84,6 +96,11 @@ class StepDefinitions {
             every { database.getNewsSummariesByCompany(company) } returns newsList
     }
 
+    @Given("rss source {rssLink} returns these news:")
+    fun `rss link has these news`(rssLink: RssNewsLink, news: List<NewsPiece>) {
+        every { rssService invoke "fetchNewsFromRssSource" withArguments listOf(rssLink) } returns news
+    }
+
     @When("asked about {companyList}")
     fun `asked about companies`(names: List<String>) {
         for (name in names) {
@@ -92,8 +109,15 @@ class StepDefinitions {
                     CompanyByNameDB(database)
                         .andThen(NewsSummariesByCompanyDB(database))
                 )(name).get(supervisor)
-            result[name] = summaries.map { it.summary.toDouble() }.average()
+            companiesResult[name] = summaries.map { it.summary.toDouble() }.average()
         }
+    }
+
+    @When("asked news about {company} from rss sources {rssLinkList}")
+    fun `asked about company news`(company: Company, rssSources: List<RssNewsLink>) {
+        newsByCompany[company] = Request.basicTransformerRequest(
+            NewsPiecesByCompanyRssSource(rssService)
+        ).invoke(listOf(company) to rssSources).get(supervisor).map { it.second }
     }
 
     @Then("{company} should be {compare} {company}")
@@ -102,6 +126,14 @@ class StepDefinitions {
         compare: (Double, Double) -> Boolean,
         otherCompany: Company,
     ) {
-        assert(compare(result[company.name]!!, result[otherCompany.name]!!))
+        assert(compare(companiesResult[company.name]!!, companiesResult[otherCompany.name]!!))
+    }
+
+    @Then("{company} should have news:")
+    fun `company should have those news`(
+        company: Company,
+        news: List<NewsPiece>,
+    ) {
+        assert(newsByCompany[company]!!.containsAll(news))
     }
 }

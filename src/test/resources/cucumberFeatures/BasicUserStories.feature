@@ -21,3 +21,18 @@ Feature: Basic User Stories
     When asked about Apple
     Then Apple should be same as Microsoft
     Then Apple should be worse then Google
+
+  Scenario: News from rss source
+    Given rss source LENTA returns these news:
+      | link  | text                        | title                     |
+      | link1 | Google is good              | Google title              |
+      | link2 | Apple and Microsoft are bad | Apple and Microsoft title |
+    And rss source RBK returns these news:
+      | link  | text                         | title                     |
+      | link3 | Google is bad                | Google title              |
+      | link4 | Apple and Microsoft are good | Apple and Microsoft title |
+    When asked news about Google from rss sources LENTA and RBK
+    Then Google should have news:
+      | link  | text           | title        |
+      | link1 | Google is good | Google title |
+      | link3 | Google is bad  | Google title |
