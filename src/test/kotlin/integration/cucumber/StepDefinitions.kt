@@ -13,13 +13,12 @@ import prod.prog.dataTypes.rss.NewsPiecesByCompanyRssSource
 import prod.prog.dataTypes.rss.RssNewsLink
 import prod.prog.request.Request
 import prod.prog.request.transformer.LanguageModelTransformer
-import prod.prog.request.transformer.Transformer
 import prod.prog.request.transformer.Transformer.Companion.forEach
-import prod.prog.request.transformer.ParallelListTransformer
 import prod.prog.request.transformer.database.CompanyByNameDB
 import prod.prog.request.transformer.database.NewsSummariesByCompanyDB
 import prod.prog.service.database.DatabaseService
 import prod.prog.service.languageModel.LanguageModelService
+import prod.prog.service.logger.log4j.Log4jLoggerService
 import prod.prog.service.newsFilter.NewsFilterByTextService
 import prod.prog.service.rss.RssServiceImpl
 import prod.prog.service.supervisor.Supervisor
@@ -51,11 +50,12 @@ class StepDefinitions {
         every { it.name() } answers { "DatabaseMock" }
     }
 
+    private val logger = mockk<Log4jLoggerService>()
     private val newsFilter = NewsFilterByTextService()
     private val documentBuilder = mockk<DocumentBuilder>()
-    private val rssService = spyk(RssServiceImpl(newsFilter, documentBuilder), recordPrivateCalls = true)
+    private val rssService = spyk(RssServiceImpl(logger, newsFilter, documentBuilder), recordPrivateCalls = true)
 
-    private var campaignsResult = mutableMapOf<Company, Double>()
+    private var campaignsResult = mutableMapOf<String, Double>()
 
     private var newsByCompany = mutableMapOf<Company, List<NewsPiece>>()
 
@@ -115,9 +115,9 @@ class StepDefinitions {
 
     @When("asked news about {company} from rss sources {rssLinkList}")
     fun `asked about company news`(company: Company, rssSources: List<RssNewsLink>) {
-        newsByCompany[company] = Request.basicSourceRequest(
-            NewsPiecesByCompanyRssSource(rssService, company, rssSources)
-        ).get(supervisor)
+        newsByCompany[company] = Request.basicTransformerRequest(
+            NewsPiecesByCompanyRssSource(rssService)
+        ).invoke(listOf(company) to rssSources).get(supervisor).map { it.second }
     }
 
     @Then("{company} should be {compare} {company}")
