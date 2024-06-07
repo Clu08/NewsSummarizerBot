@@ -12,21 +12,33 @@ class RssServiceImpl(
     private val documentBuilder: DocumentBuilder,
 ) : RssService {
 
-    override fun getNewsByCompany(company: Company, rssNewsLinks: List<RssNewsLink>): List<NewsPiece> {
-        return rssNewsLinks
-            .map { fetchNewsFromRssSource(it) }
-            .flatten()
-            .filter { news -> newsFilterService.isNewsContainsInfoAboutCompany(news, company) }
-    }
+    override fun getNewsByCompany(
+        companyList: List<Company>,
+        rssNewsLinks: List<RssNewsLink>,
+    ): List<Pair<Company, NewsPiece>> =
+        rssNewsLinks
+            .map { link ->
+                val newsList = fetchNewsFromRssSource(link)
 
-    private fun fetchNewsFromRssSource(rssNewsLink: RssNewsLink): List<NewsPiece> =
-        rssNewsLink.sourceUrl.openStream().use {
+                companyList.map { company ->
+                    newsList.filter { news ->
+                        newsFilterService.isNewsContainsInfoAboutCompany(news, company)
+                    }.map { it -> Pair(company, it) }
+                }
+            }
+            .flatten()
+            .flatten()
+
+    private fun fetchNewsFromRssSource(rssNewsLink: RssNewsLink): List<NewsPiece> {
+        println("fetchNewsFromRssSource $rssNewsLink")
+        return rssNewsLink.sourceUrl.openStream().use {
             val sourceData = documentBuilder.parse(it).getElementsByTagName("item")
             return@use (0 until sourceData.length)
                 .map { index -> sourceData.item(index) }
                 .filterIsInstance<Element>()
                 .map { newsItem -> rssNewsLink.newsParser(newsItem) }
         }
+    }
 
     override fun name(): String = "RssServiceImpl"
 }
