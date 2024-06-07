@@ -1,6 +1,6 @@
 # NewsSummarizerBot
 
-add .env file in this format:
+change .env file in the root folder:
 ```
 TELEGRAM_API_TOKEN=<your telegram token>
 TELEGRAM_API_ADDRESS=<your telegram bot address (is not currently used)>
