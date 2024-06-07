@@ -37,13 +37,12 @@ class RssServiceTest : StringSpec({
 
         val rssSources = listOf(source1, source2)
         val yandexCompany = Company(name = "yandex")
-        val newsAboutYandex = rssService.getNewsByCompany(yandexCompany, rssSources)
+        val newsAboutYandex = rssService.getNewsByCompany(listOf(yandexCompany), rssSources)
 
         val expectedNews = listOf(
-            NewsPiece(link = "link1", title = "title1", text = "Yandex good"),
-            NewsPiece(link = "link1", title = "title1", text = "Yandex bad"),
+            Pair(yandexCompany, NewsPiece(link = "link1", title = "title1", text = "Yandex good")),
+            Pair(yandexCompany, NewsPiece(link = "link1", title = "title1", text = "Yandex bad")),
         )
-
         newsAboutYandex shouldContainExactlyInAnyOrder expectedNews
     }
 })
