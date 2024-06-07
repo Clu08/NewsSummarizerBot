@@ -13,5 +13,6 @@ class CompaniesSource(private val database: DatabaseService) : Source<Iterable<C
     override fun invoke(t: Unit): Iterable<Company> =
         database.getAllCompanies()
 
+
     override fun message() = "CompaniesSourceDB"
 }
