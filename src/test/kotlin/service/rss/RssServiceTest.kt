@@ -10,6 +10,7 @@ import io.mockk.spyk
 import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
 import prod.prog.dataTypes.rss.AvailableRssSources
+import prod.prog.service.logger.LoggerService
 import prod.prog.service.newsFilter.NewsFilterByTextService
 import javax.xml.parsers.DocumentBuilder
 
@@ -18,8 +19,9 @@ class RssServiceTest : StringSpec({
     isolationMode = IsolationMode.InstancePerTest
 
     val newsFilter = NewsFilterByTextService()
+    val logger = mockk<LoggerService>()
     val documentBuilder = mockk<DocumentBuilder>()
-    val rssService = spyk(RssServiceImpl(newsFilter, documentBuilder), recordPrivateCalls = true)
+    val rssService = spyk(RssServiceImpl(logger, newsFilter, documentBuilder), recordPrivateCalls = true)
 
     "fetch news about company from sources" {
 
