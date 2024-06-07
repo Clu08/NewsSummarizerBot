@@ -12,8 +12,8 @@ import prod.prog.request.Request
 import prod.prog.request.transformer.IdTransformer
 import prod.prog.request.transformer.database.NewsPiecesByCompanyDB
 import prod.prog.request.transformer.LanguageModelTransformer
-import prod.prog.request.transformer.ParallelListTransformer
 import prod.prog.request.transformer.Transformer
+import prod.prog.request.transformer.Transformer.Companion.forEach
 import prod.prog.request.transformer.database.CompanyByNameDB
 import prod.prog.request.transformer.database.NewsSummariesByCompanyDB
 import prod.prog.service.database.DatabaseService
@@ -70,7 +70,7 @@ class StepDefinitions {
 
         val groupedSummaries =
             Request.basicTransformerRequest(
-                ParallelListTransformer(LanguageModelTransformer(languageModelStub))
+                LanguageModelTransformer(languageModelStub).forEach()
             )(references.map { item ->
                 Pair(
                     Company(item["name"]!!),

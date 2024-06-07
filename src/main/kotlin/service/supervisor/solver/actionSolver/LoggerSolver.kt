@@ -12,25 +12,28 @@ class LoggerSolver(
 ) : IdSolver<Context> {
     override fun solve(t: Context) {
         val fullMessage = "id ${t["id"]}\t${t["createdBy"]}\t\t$prefix\t"
-
+        when {
+            t.has(PrintFatal()) -> logger.log(PrintFatal, fullMessage + t[PrintFatal()])
+        }
         when {
             t.has(PrintDebug()) -> when (logLevel) {
                 is PrintDebug -> logger.log(PrintDebug, fullMessage + t[PrintDebug()])
             }
-
+        }
+        when {
             t.has(PrintInfo()) -> when (logLevel) {
                 is PrintInfo -> logger.log(PrintInfo, fullMessage + t[PrintInfo()])
             }
-
+        }
+        when {
             t.has(PrintWarning()) -> when (logLevel) {
                 is PrintWarning -> logger.log(PrintWarning, fullMessage + t[PrintWarning()])
             }
-
+        }
+        when {
             t.has(PrintError()) -> when (logLevel) {
                 is PrintError -> logger.log(PrintError, fullMessage + t[PrintError()])
             }
-
-            t.has(PrintFatal()) -> logger.log(PrintFatal, fullMessage + t[PrintFatal()])
         }
     }
 }

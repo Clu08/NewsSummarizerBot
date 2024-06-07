@@ -9,5 +9,5 @@ import prod.prog.service.Service
  * Fetches data from rss sources and converts it to internal representation
  */
 interface RssService : Service {
-    fun getNewsByCompany(company: Company, rssNewsLinks: List<RssNewsLink>): List<NewsPiece>
+    fun getNewsByCompany(companyList: List<Company>, rssNewsLinks: List<RssNewsLink>): List<Pair<Company, NewsPiece>>
 }

@@ -21,8 +21,14 @@ class DatabaseService(private val databaseImpl: DatabaseImpl) : DatabaseServiceM
         }
     }
 
-    override fun getAllCompanies(): Iterable<Company> =
+    override fun getAllCompanies(): List<Company> =
         transaction { databaseImpl.getAllCompanies() }
+
+    override fun getAllNewsPieces(): List<NewsPiece> =
+        transaction { databaseImpl.getAllNewsPieces() }
+
+    override fun getAllNewsSummaries(): List<NewsSummary> =
+        transaction { databaseImpl.getAllNewsSummaries() }
 
     override fun getCompanyByName(name: String): Company? =
         transaction { databaseImpl.getCompanyByName(name) }
@@ -30,14 +36,17 @@ class DatabaseService(private val databaseImpl: DatabaseImpl) : DatabaseServiceM
     override fun getNewsPieceByLink(link: String): NewsPiece? =
         transaction { databaseImpl.getNewsPieceByLink(link) }
 
-    override fun getNewsSummariesByCompany(company: Company): Iterable<NewsSummary> =
+    override fun getNewsSummariesByCompany(company: Company): List<NewsSummary> =
         transaction { databaseImpl.getNewsSummariesByCompany(company) }
 
-    override fun getNewsSummariesByNewsPiece(newsPiece: NewsPiece): Iterable<NewsSummary> =
+    override fun getNewsSummariesByNewsPiece(newsPiece: NewsPiece): List<NewsSummary> =
         transaction { databaseImpl.getNewsSummariesByNewsPiece(newsPiece) }
 
-    override fun getNewsPiecesByCompany(company: Company): Iterable<NewsPiece> =
+    override fun getNewsPiecesByCompany(company: Company): List<NewsPiece> =
         transaction { databaseImpl.getNewsPiecesByCompany(company) }
+
+    override fun getExistingNewsPieces(newsPieces: List<NewsPiece>) =
+        transaction { databaseImpl.getExistingNewsPieces(newsPieces) }
 
     override fun addCompany(name: String) =
         transaction { databaseImpl.addCompany(name) }

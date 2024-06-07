@@ -17,12 +17,13 @@ class RequestContextSolver(solver: Solver<Context>) : Solver<RequestContext> {
 
     override fun invoke(t: RequestContext): RequestContext {
         val requestSpecificContext = solver(t.requestSpecificContext)
-        return RequestContext(
+        val result = RequestContext(
             requestSpecificContext,
             t.sourceContext.add(requestSpecificContext),
             t.transformerContext.add(requestSpecificContext),
             t.resultHandlerContext.add(requestSpecificContext),
             t.errorHandlerContext.add(requestSpecificContext),
         )
+        return result
     }
 }

@@ -1,18 +1,17 @@
 package prod.prog.request.source.database
 
 import prod.prog.actionProperties.contextFactory.DatabaseAction
-import prod.prog.dataTypes.Company
+import prod.prog.dataTypes.NewsPiece
 import prod.prog.request.source.Source
 import prod.prog.service.database.DatabaseService
 
-class CompaniesSource(private val database: DatabaseService) : Source<Iterable<Company>>() {
+class NewsPiecesSourceDB(private val database: DatabaseService) : Source<List<NewsPiece>>() {
     init {
         addContext(DatabaseAction(database.name()))
     }
 
-    override fun invoke(t: Unit): Iterable<Company> =
-        database.getAllCompanies()
+    override fun invoke(t: Unit): List<NewsPiece> =
+        database.getAllNewsPieces()
 
-
-    override fun message() = "CompaniesSourceDB"
+    override fun message() = "NewsPiecesSourceDB"
 }
