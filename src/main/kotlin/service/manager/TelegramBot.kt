@@ -68,7 +68,6 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
                 val chatId = message.chat.id
                 val text = message.text ?: ""
                 if (text.startsWith("/")) return@text // Ignore other commands
-                // Проверяем флаг ожидания
                 if (awaitingCompanyName[chatId] != true) {
                     return@text
                 }
