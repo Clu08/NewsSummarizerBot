@@ -27,14 +27,17 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
     private val telegramApiAddress = dotenv()["TELEGRAM_API_ADDRESS"]
     private val telegramBot = bot {
         token = telegramApiToken
+        val awaitingCompanyName = mutableMapOf<Long, Boolean>()
         dispatch {
             command("start") {
+                val chatId = update.message?.chat?.id ?: return@command
                 logMessage(update.message!!)
                 logger.log(PrintInfo, "Received command: /start")
                 bot.sendMessage(
                     ChatId.fromId(message.chat.id),
                     text = "Welcome to the bot! Use /list to see company buttons."
                 )
+                awaitingCompanyName[chatId] = false
             }
             command("list") {
                 logMessage(update.message!!)
@@ -47,6 +50,7 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
                     text = "Choose a company:",
                     replyMarkup = inlineKeyboardMarkup
                 )
+                awaitingCompanyName[chatId] = false
             }
 
             command("add") {
@@ -57,12 +61,20 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
                     chatId = ChatId.fromId(chatId),
                     text = "Please enter the name of the company you want to add."
                 )
+                awaitingCompanyName[chatId] = true
             }
 
             text {
                 val chatId = message.chat.id
                 val text = message.text ?: ""
                 if (text.startsWith("/")) return@text // Ignore other commands
+                // Проверяем флаг ожидания
+                if (awaitingCompanyName[chatId] != true) {
+                    return@text
+                }
+
+                awaitingCompanyName[chatId] = false
+
 
                 val companyName = text.trim()
                 if (companyName.isEmpty() || companyName.any { !it.isLetterOrDigit() && it != '-' && !it.isWhitespace() }) {
