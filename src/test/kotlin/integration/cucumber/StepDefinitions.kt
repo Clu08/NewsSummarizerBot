@@ -55,7 +55,7 @@ class StepDefinitions {
     private val documentBuilder = mockk<DocumentBuilder>()
     private val rssService = spyk(RssServiceImpl(logger, newsFilter, documentBuilder), recordPrivateCalls = true)
 
-    private var campaignsResult = mutableMapOf<String, Double>()
+    private var companiesResult = mutableMapOf<String, Double>()
 
     private var newsByCompany = mutableMapOf<Company, List<NewsPiece>>()
 
@@ -109,7 +109,7 @@ class StepDefinitions {
                     CompanyByNameDB(database)
                         .andThen(NewsSummariesByCompanyDB(database))
                 )(name).get(supervisor)
-            campaignsResult[name] = summaries.map { it.summary.toDouble() }.average()
+            companiesResult[name] = summaries.map { it.summary.toDouble() }.average()
         }
     }
 
@@ -126,7 +126,7 @@ class StepDefinitions {
         compare: (Double, Double) -> Boolean,
         otherCompany: Company,
     ) {
-        assert(compare(campaignsResult[company.name]!!, campaignsResult[otherCompany.name]!!))
+        assert(compare(companiesResult[company.name]!!, companiesResult[otherCompany.name]!!))
     }
 
     @Then("{company} should have news:")
