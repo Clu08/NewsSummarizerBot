@@ -24,6 +24,12 @@ class DatabaseService(private val databaseImpl: DatabaseImpl) : DatabaseServiceM
     override fun getAllCompanies(): List<Company> =
         transaction { databaseImpl.getAllCompanies() }
 
+    override fun getAllNewsPieces(): List<NewsPiece> =
+        transaction { databaseImpl.getAllNewsPieces() }
+
+    override fun getAllNewsSummaries(): List<NewsSummary> =
+        transaction { databaseImpl.getAllNewsSummaries() }
+
     override fun getCompanyByName(name: String): Company? =
         transaction { databaseImpl.getCompanyByName(name) }
 

@@ -7,12 +7,12 @@ import prod.prog.request.transformer.Transformer
 import prod.prog.service.database.DatabaseService
 
 class NewsPiecesByCompanyDB(private val database: DatabaseService) :
-    Transformer<Company, Iterable<NewsPiece>>() {
+    Transformer<Company, List<NewsPiece>>() {
     init {
         addContext(DatabaseAction(database.name()))
     }
 
-    override fun invoke(t: Company): Iterable<NewsPiece> =
+    override fun invoke(t: Company): List<NewsPiece> =
         database.getNewsPiecesByCompany(t)
 
     override fun message() = "NewsPiecesByCompanyDB"
