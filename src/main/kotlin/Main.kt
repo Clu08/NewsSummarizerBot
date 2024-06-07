@@ -11,17 +11,18 @@ import prod.prog.request.resultHandler.IgnoreHandler
 import prod.prog.request.source.ConstantSource
 import prod.prog.request.transformer.IdTransformer
 import prod.prog.request.transformer.LanguageModelTransformer
-import prod.prog.service.languageModel.YandexGptLanguageModel
 import prod.prog.service.database.DatabaseImpl
 import prod.prog.service.database.DatabaseService
 import prod.prog.service.database.DatabaseURL
+import prod.prog.service.languageModel.IdLanguageModel
+import prod.prog.service.languageModel.YandexGptLanguageModel
 import prod.prog.service.logger.log4j.Log4jLoggerService
 import prod.prog.service.logger.log4j.LogType
 import prod.prog.service.manager.DefaultCompanies
 import prod.prog.service.manager.TelegramBot
+import prod.prog.service.manager.rssManager
 import prod.prog.service.newsFilter.NewsFilterByTextService
 import prod.prog.service.rss.RssServiceImpl
-import prod.prog.service.manager.TimerManager
 import prod.prog.service.supervisor.Supervisor
 import prod.prog.service.supervisor.solver.EmptySolver
 import prod.prog.service.supervisor.solver.actionSolver.LoggerSolver
@@ -30,6 +31,46 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 
 fun main() {
+    ApplicationConfiguration().initApplication()
+    val logger = Log4jLoggerService(LogType.MESSAGES)
+    val telegramApiLogger = Log4jLoggerService(LogType.TELEGRAM_API)
+
+    val newsFilter = NewsFilterByTextService()
+    val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+    val rssService = RssServiceImpl(newsFilter, documentBuilder)
+    val database = DatabaseService(DatabaseImpl(DatabaseURL.IN_MEMORY))
+
+    val languageModel = YandexGptLanguageModel()
+//    val languageModel = IdLanguageModel()
+
+    val supervisor = Supervisor(
+        before = LoggerSolver(logger, "started ", PrintInfo),
+        after = LoggerSolver(logger, "finished", PrintInfo),
+        initContext = SetUniqueIdSolver()
+    )
+
+    val rssManager = rssManager(supervisor, logger, database, rssService, languageModel, 20 * 1_000)
+    rssManager.start()
+
+    if (database.getAllCompanies().toList().isEmpty()) {
+        DefaultCompanies.entries.map { database.addCompany(it.displayName) }
+    }
+    val telegramBot = TelegramBot(supervisor, telegramApiLogger, database)
+    telegramBot.start()
+
+    Thread.sleep(10_000)
+    println(database.getAllNewsPieces())
+}
+
+fun example() {
+    ApplicationConfiguration().initApplication()
+    val logger = Log4jLoggerService(LogType.MESSAGES)
+    val telegramApiLogger = Log4jLoggerService(LogType.TELEGRAM_API)
+
+    val newsFilter = NewsFilterByTextService()
+    val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+    val rssService = RssServiceImpl(newsFilter, documentBuilder)
+    val dataBase = DatabaseService(DatabaseImpl(DatabaseURL.MAIN))
 
     val languageModel = YandexGptLanguageModel()
 
@@ -45,10 +86,6 @@ fun main() {
             )
         )
     )
-
-    ApplicationConfiguration().initApplication()
-    val logger = Log4jLoggerService(LogType.MESSAGES)
-    val telegramApiLogger = Log4jLoggerService(LogType.TELEGRAM_API)
 
     // инициализируем Supervisor двумя функциями - что делать перед и после каждого экшена
     // внутри Solver<Action> будут использоваться "тэги" - интерфейсы из package actionProperties
@@ -103,20 +140,10 @@ fun main() {
 
     request.run(supervisor)
 
-    val timer = TimerManager(supervisor, logger, "print", 500) {
-        println("!")
-    }
-    timer.start()
-    val newsFilter = NewsFilterByTextService()
-    val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-    val rssService = RssServiceImpl(newsFilter, documentBuilder)
-    val dataBase = DatabaseService(DatabaseImpl(DatabaseURL.MAIN))
-    if (dataBase.getAllCompanies().toList().isEmpty())
-    {
+    if (dataBase.getAllCompanies().toList().isEmpty()) {
         DefaultCompanies.entries.map { dataBase.addCompany(it.displayName) }
     }
-    val telegramBot = TelegramBot(supervisor, telegramApiLogger, rssService, dataBase)
+    val telegramBot = TelegramBot(supervisor, telegramApiLogger, dataBase)
     telegramBot.start()
-    Thread.sleep(3_000)
-    timer.stop()
+    Thread.sleep(30_000)
 }

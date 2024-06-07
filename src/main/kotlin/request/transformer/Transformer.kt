@@ -53,7 +53,7 @@ abstract class Transformer<T, R> : Action() {
                 }
 
                 override fun invoke(t: List<T>): List<R> =
-                    Future.allAsList(t.map { Future { this@forEach(it) } }).get()
+                    Future.successfulList(t.map { Future { this@forEach(it) } }).get()
 
                 override fun message() = "ParallelTransformer(${this@forEach.message()})"
             }

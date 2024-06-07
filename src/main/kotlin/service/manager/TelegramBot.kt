@@ -3,25 +3,27 @@ package prod.prog.service.manager
 import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
 import com.github.kotlintelegrambot.dispatcher.callbackQuery
-import io.github.cdimascio.dotenv.dotenv
-import prod.prog.actionProperties.contextFactory.print.PrintInfo
 import com.github.kotlintelegrambot.dispatcher.command
 import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.*
 import com.github.kotlintelegrambot.entities.keyboard.InlineKeyboardButton
+import io.github.cdimascio.dotenv.dotenv
+import prod.prog.actionProperties.contextFactory.print.PrintInfo
 import prod.prog.dataTypes.Company
-import prod.prog.dataTypes.rss.AvailableRssSources
-import prod.prog.dataTypes.rss.NewsPiecesByCompanyRssSource
-import prod.prog.request.resultHandler.IgnoreErrorHandler
 import prod.prog.request.resultHandler.IgnoreHandler
-import prod.prog.request.transformer.IdTransformer
+import prod.prog.request.resultHandler.PrintErrorHandler
+import prod.prog.request.source.ConstantSource
+import prod.prog.request.transformer.database.NewsSummariesByCompanyDB
 import prod.prog.service.database.DatabaseService
 import prod.prog.service.logger.LoggerService
-import prod.prog.service.rss.RssService
 import prod.prog.service.supervisor.Supervisor
 import java.io.Serializable
 
-class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, private val rssService : RssService, private val dataBase : DatabaseService) : RequestManager(supervisor) {
+class TelegramBot(
+    supervisor: Supervisor,
+    private val logger: LoggerService,
+    private val database: DatabaseService,
+) : RequestManager(supervisor) {
     override fun name() = "TelegramBot"
     private val telegramApiToken = dotenv()["TELEGRAM_API_TOKEN"]
     private val telegramApiAddress = dotenv()["TELEGRAM_API_ADDRESS"]
@@ -34,8 +36,7 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
                 logMessage(update.message!!)
                 logger.log(PrintInfo, "Received command: /start")
                 bot.sendMessage(
-                    ChatId.fromId(message.chat.id),
-                    text = "Welcome to the bot! Use /list to see company buttons."
+                    ChatId.fromId(message.chat.id), text = "Welcome to the bot! Use /list to see company buttons."
                 )
                 awaitingCompanyName[chatId] = false
             }
@@ -43,12 +44,10 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
                 logMessage(update.message!!)
                 logger.log(PrintInfo, "Received command: /list")
                 val chatId = update.message?.chat?.id ?: return@command
-                val buttons = dataBase.getAllCompanies().map { InlineKeyboardButton.CallbackData(it.name, it.name)  }
+                val buttons = database.getAllCompanies().map { InlineKeyboardButton.CallbackData(it.name, it.name) }
                 val inlineKeyboardMarkup = InlineKeyboardMarkup.create(buttons.chunked(1))
                 bot.sendMessage(
-                    chatId = ChatId.fromId(chatId),
-                    text = "Choose a company:",
-                    replyMarkup = inlineKeyboardMarkup
+                    chatId = ChatId.fromId(chatId), text = "Choose a company:", replyMarkup = inlineKeyboardMarkup
                 )
                 awaitingCompanyName[chatId] = false
             }
@@ -58,8 +57,7 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
                 logMessage(update.message!!)
                 logger.log(PrintInfo, "Received command: /add")
                 bot.sendMessage(
-                    chatId = ChatId.fromId(chatId),
-                    text = "Please enter the name of the company you want to add."
+                    chatId = ChatId.fromId(chatId), text = "Please enter the name of the company you want to add."
                 )
                 awaitingCompanyName[chatId] = true
             }
@@ -82,11 +80,10 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
                         text = "Invalid company name. Please enter a valid company name."
                     )
                 } else {
-                    if (dataBase.getCompanyByName(companyName) == null) {
-                        dataBase.addCompany(companyName)
+                    if (database.getCompanyByName(companyName) == null) {
+                        database.addCompany(companyName)
                         bot.sendMessage(
-                            chatId = ChatId.fromId(chatId),
-                            text = "Company \"$companyName\" added successfully!"
+                            chatId = ChatId.fromId(chatId), text = "Company \"$companyName\" added successfully!"
                         )
                         logMessage(message)
                         logger.log(PrintInfo, "Added company: $companyName")
@@ -107,17 +104,17 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
                 logMessage(update.callbackQuery!!.message!!)
                 logger.log(PrintInfo, "Callback query with data: $name")
                 makeRequest(
-                    NewsPiecesByCompanyRssSource(company = Company(name), rssService = rssService, rssNewsLinks = AvailableRssSources.entries.map { s -> s.rssNewsLink }),
-                    IdTransformer(),
+                    ConstantSource(Company(name)),
+                    NewsSummariesByCompanyDB(database)
+                        .apply { addContext(PrintInfo { "summaryReading" }) },
                     IgnoreHandler(),
-                    IgnoreErrorHandler()
+                    PrintErrorHandler(logger)
                 ).thenApply { res ->
                     sendLargeMessage(chatId = ChatId.fromId(chatId), res)
                     val intro = if (res.isEmpty()) "No news for search" else "That is your result for search"
                     logger.log(PrintInfo, if (res.isEmpty()) "No info for $name found" else "Info for $name not empty")
                     bot.sendMessage(
-                        chatId = ChatId.fromId(chatId),
-                        text = "$intro : \"$name\". \nSend /list to chose new company."
+                        chatId = ChatId.fromId(chatId), text = "$intro : \"$name\". \nSend /list to chose new company."
                     )
                 }
             }
