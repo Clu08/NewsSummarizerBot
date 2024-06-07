@@ -6,8 +6,6 @@ fun interface Solver<T> {
 
     fun andThen(other: Solver<T>): Solver<T> =
         Solver { t ->
-            this.invoke(t).let { newT ->
-                other.invoke(newT)
-            }
+            other.invoke(this.invoke(t))
         }
 }

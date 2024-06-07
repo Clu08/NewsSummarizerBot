@@ -1,6 +1,7 @@
 package prod.prog.service.database
 
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.and
 import prod.prog.dataTypes.Company
 import prod.prog.dataTypes.NewsPiece
@@ -57,6 +58,11 @@ class DatabaseImpl(private val databaseURL: DatabaseURL) : DatabaseServiceMethod
             .all()
             .filter { it.toNewsSummary().company.name == company.name }
             .map { it.toNewsSummary().newsPiece }
+
+    override fun getExistingNewsPieces(newsPieces: List<NewsPiece>) =
+        NewsPieceEntity
+            .find(NewsPieceTable.link inList newsPieces.map { it.link })
+            .map(NewsPieceEntity::toNewsPiece)
 
     override fun addCompany(name: String) {
         CompanyEntity.new {

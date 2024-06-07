@@ -14,7 +14,6 @@ import prod.prog.request.transformer.LanguageModelTransformer
 import prod.prog.service.database.DatabaseImpl
 import prod.prog.service.database.DatabaseService
 import prod.prog.service.database.DatabaseURL
-import prod.prog.service.languageModel.IdLanguageModel
 import prod.prog.service.languageModel.YandexGptLanguageModel
 import prod.prog.service.logger.log4j.Log4jLoggerService
 import prod.prog.service.logger.log4j.LogType
@@ -26,6 +25,7 @@ import prod.prog.service.rss.RssServiceImpl
 import prod.prog.service.supervisor.Supervisor
 import prod.prog.service.supervisor.solver.EmptySolver
 import prod.prog.service.supervisor.solver.actionSolver.LoggerSolver
+import prod.prog.service.supervisor.solver.actionSolver.ServiceLogSolver
 import prod.prog.service.supervisor.solver.requestSolver.SetUniqueIdSolver
 import javax.xml.parsers.DocumentBuilderFactory
 
@@ -37,15 +37,17 @@ fun main() {
 
     val newsFilter = NewsFilterByTextService()
     val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-    val rssService = RssServiceImpl(newsFilter, documentBuilder)
-    val database = DatabaseService(DatabaseImpl(DatabaseURL.IN_MEMORY))
+    val rssService = RssServiceImpl(logger, newsFilter, documentBuilder)
+    val database = DatabaseService(DatabaseImpl(DatabaseURL.MAIN))
 
     val languageModel = YandexGptLanguageModel()
 //    val languageModel = IdLanguageModel()
 
     val supervisor = Supervisor(
-        before = LoggerSolver(logger, "started ", PrintInfo),
-        after = LoggerSolver(logger, "finished", PrintInfo),
+        before = LoggerSolver(logger, "started ", PrintInfo)
+            .andThen(ServiceLogSolver("started")),
+        after = LoggerSolver(logger, "finished", PrintInfo)
+            .andThen(ServiceLogSolver("finished")),
         initContext = SetUniqueIdSolver()
     )
 
@@ -57,9 +59,6 @@ fun main() {
     }
     val telegramBot = TelegramBot(supervisor, telegramApiLogger, database)
     telegramBot.start()
-
-    Thread.sleep(10_000)
-    println(database.getAllNewsPieces())
 }
 
 fun example() {
@@ -69,7 +68,7 @@ fun example() {
 
     val newsFilter = NewsFilterByTextService()
     val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-    val rssService = RssServiceImpl(newsFilter, documentBuilder)
+    val rssService = RssServiceImpl(logger, newsFilter, documentBuilder)
     val dataBase = DatabaseService(DatabaseImpl(DatabaseURL.MAIN))
 
     val languageModel = YandexGptLanguageModel()

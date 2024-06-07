@@ -14,6 +14,7 @@ interface DatabaseServiceMethods : Service {
     fun getNewsSummariesByCompany(company: Company): List<NewsSummary>
     fun getNewsSummariesByNewsPiece(newsPiece: NewsPiece): List<NewsSummary>
     fun getNewsPiecesByCompany(company: Company): List<NewsPiece>
+    fun getExistingNewsPieces(newsPieces: List<NewsPiece>): List<NewsPiece>
 
     fun addCompany(name: String)
     fun addNewsPiece(link: String, title: String, text: String, categories: List<String> = listOf())

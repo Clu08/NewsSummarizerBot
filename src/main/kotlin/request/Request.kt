@@ -4,7 +4,6 @@ import io.github.vjames19.futures.jdk8.map
 import io.github.vjames19.futures.jdk8.onComplete
 import io.sentry.Sentry
 import io.sentry.SpanStatus
-import prod.prog.actionProperties.Context
 import prod.prog.request.resultHandler.IgnoreHandler
 import prod.prog.request.resultHandler.ResultHandler
 import prod.prog.request.source.ConstantSource
@@ -25,42 +24,40 @@ data class Request<T, R>(
 ) {
     fun run(supervisor: Supervisor): CompletableFuture<R> {
         val transaction = Sentry.startTransaction("run()", "Request")
-
-        var (_, sourceContext, transformerContext, resultHandlerContext, errorHandlerContext) =
+        val x = initContext.copy(
+            sourceContext = source.getContext(initContext.sourceContext),
+            transformerContext = transformer.getContext(initContext.transformerContext),
+            resultHandlerContext = resultHandler.getContext(initContext.resultHandlerContext),
+            errorHandlerContext = errorHandler.getContext(initContext.errorHandlerContext),
+        )
+        val (_, sourceContext, transformerContext, resultHandlerContext, errorHandlerContext) =
             supervisor.getInitContext()(
-                initContext.copy(
-                    sourceContext = source.getContext(initContext.sourceContext),
-                    transformerContext = transformer.getContext(initContext.transformerContext),
-                    resultHandlerContext = resultHandler.getContext(initContext.resultHandlerContext),
-                    errorHandlerContext = errorHandler.getContext(initContext.errorHandlerContext),
-                )
+                x
             )
 
-        fun handleError(throwable: Throwable, change: Context) {
-            errorHandlerContext = supervisor.before(errorHandlerContext.add(change))
+        fun handleError(throwable: Throwable) {
+            supervisor.before(errorHandlerContext)
             errorHandler(throwable)
             supervisor.after(errorHandlerContext)
         }
 
-        var change = Context()
-        // todo add test for context propagating
-        sourceContext = supervisor.before(sourceContext)
+        supervisor.before(sourceContext)
 
         return source().map {
-            change = supervisor.after(sourceContext).diff(sourceContext)
-            transformerContext = supervisor.before(transformerContext.add(change))
+            supervisor.after(sourceContext)
+            supervisor.before(transformerContext)
             transformer(it).also {
-                change = supervisor.after(transformerContext).diff(sourceContext)
+                supervisor.after(transformerContext)
             }
         }.onComplete(onSuccess = { result ->
             try {
-                resultHandlerContext = supervisor.before(resultHandlerContext.add(change))
+                supervisor.before(resultHandlerContext)
                 resultHandler(result)
-                change = supervisor.after(resultHandlerContext).diff(resultHandlerContext)
+                supervisor.after(resultHandlerContext)
             } catch (throwable: Throwable) {
                 transaction.throwable = throwable
                 transaction.status = SpanStatus.INTERNAL_ERROR
-                handleError(throwable, change)
+                handleError(throwable)
             } finally {
                 transaction.finish()
             }
@@ -68,7 +65,7 @@ data class Request<T, R>(
             transaction.throwable = throwable
             transaction.status = SpanStatus.INTERNAL_ERROR
             try {
-                handleError(throwable, change)
+                handleError(throwable)
             } finally {
                 transaction.finish()
             }

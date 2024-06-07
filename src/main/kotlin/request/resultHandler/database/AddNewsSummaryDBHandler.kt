@@ -11,7 +11,6 @@ class AddNewsSummaryDBHandler(private val database: DatabaseService) : ResultHan
     }
 
     override fun invoke(t: NewsSummary) {
-        println("add")
         database.addNewsSummary(t.company, t.newsPiece, t.summary)
     }
 

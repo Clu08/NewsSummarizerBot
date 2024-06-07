@@ -1,8 +1,10 @@
 package prod.prog.service.manager
 
+import prod.prog.actionProperties.contextFactory.DatabaseAction
 import prod.prog.actionProperties.contextFactory.print.PrintError
 import prod.prog.actionProperties.contextFactory.print.PrintInfo
 import prod.prog.dataTypes.Company
+import prod.prog.dataTypes.NewsPiece
 import prod.prog.dataTypes.rss.AvailableRssSources
 import prod.prog.dataTypes.rss.NewsPiecesByCompanyRssSource
 import prod.prog.request.Request
@@ -15,6 +17,7 @@ import prod.prog.request.source.database.CompaniesSourceDB
 import prod.prog.request.source.ignoreInput
 import prod.prog.request.transformer.IdTransformer
 import prod.prog.request.transformer.LanguageModelTransformer
+import prod.prog.request.transformer.Transformer
 import prod.prog.request.transformer.Transformer.Companion.forEach
 import prod.prog.service.database.DatabaseService
 import prod.prog.service.languageModel.LanguageModelService
@@ -37,10 +40,25 @@ fun rssManager(
             .forEach()
             .withPair(ConstantSource(AvailableRssSources.entries.map { s -> s.rssNewsLink }).ignoreInput())
             .andThen(NewsPiecesByCompanyRssSource(rssService))
+            .andThen(object : Transformer<List<Pair<Company, NewsPiece>>, List<Pair<Company, NewsPiece>>>() {
+                init {
+                    addContext(DatabaseAction(database.name()))
+                }
+
+                override fun invoke(t: List<Pair<Company, NewsPiece>>): List<Pair<Company, NewsPiece>> =
+                    t.filterNot {
+                        it.second.link in database.getExistingNewsPieces(t.map(Pair<Company, NewsPiece>::second))
+                            .map(NewsPiece::link)
+                    }
+
+                override fun message() = "FilterOnlyNewPiecesDB"
+            })
             .andThen(LanguageModelTransformer(languageModel).forEach())
             .apply { addContext(PrintInfo { "rssRequestTransform" }) },
         AddNewsSummaryDBHandler(database).forEach().ignoreOutput()
-            .apply { addContext(PrintInfo { "rssRequestHandler" }) },
+            .apply {
+                addContext(PrintInfo { "rssRequestHandler" })
+            },
         PrintErrorHandler(logger)
             .apply {
                 addContext(

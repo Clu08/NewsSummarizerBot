@@ -45,6 +45,9 @@ class DatabaseService(private val databaseImpl: DatabaseImpl) : DatabaseServiceM
     override fun getNewsPiecesByCompany(company: Company): List<NewsPiece> =
         transaction { databaseImpl.getNewsPiecesByCompany(company) }
 
+    override fun getExistingNewsPieces(newsPieces: List<NewsPiece>) =
+        transaction { databaseImpl.getExistingNewsPieces(newsPieces) }
+
     override fun addCompany(name: String) =
         transaction { databaseImpl.addCompany(name) }
 

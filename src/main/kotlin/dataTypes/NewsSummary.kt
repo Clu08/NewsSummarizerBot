@@ -8,6 +8,10 @@ data class NewsSummary(val company: Company, val newsPiece: NewsPiece, val summa
         val styledTitle = escapeMarkdownV2(newsPiece.title)
         val styledLink = escapeMarkdownV2(newsPiece.link)
         val styledSummary = escapeMarkdownV2(summary)
-        return "\n*$styledSummary*\n_To get more details follow the [link]($styledLink)_\n"
+        return """
+*$styledTitle*
+_To get more details follow the [link]($styledLink)_
+Оценка: $styledSummary
+            """
     }
 }

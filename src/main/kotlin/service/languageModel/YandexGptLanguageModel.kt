@@ -62,8 +62,6 @@ class YandexGptLanguageModel : LanguageModelService {
             response.body?.string() ?: throw IOException("Empty response body")
         }
 
-        print(jsonResponse)
-
         val summary = getTextFromJsonResponse(jsonResponse)
 
         return NewsSummary(company, newsPiece, summary)

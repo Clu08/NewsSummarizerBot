@@ -11,6 +11,6 @@ import prod.prog.service.supervisor.solver.Solver
  */
 class ContextCopySolver(val solver: Solver<Context>) : Solver<Context> {
     override fun invoke(t: Context): Context {
-        return t.copy().also { solver(it) }
+        return solver(t.copy())
     }
 }
