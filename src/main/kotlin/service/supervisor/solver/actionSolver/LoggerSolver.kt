@@ -12,7 +12,6 @@ class LoggerSolver(
 ) : IdSolver<Context> {
     override fun solve(t: Context) {
         val fullMessage = "id ${t["id"]}\t${t["createdBy"]}\t\t$prefix\t"
-
         when {
             t.has(PrintFatal()) -> logger.log(PrintFatal, fullMessage + t[PrintFatal()])
         }

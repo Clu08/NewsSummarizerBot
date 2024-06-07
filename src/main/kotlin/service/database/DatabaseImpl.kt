@@ -11,7 +11,7 @@ import prod.prog.service.database.table.CompanyTable
 import prod.prog.service.database.table.NewsPieceTable
 
 class DatabaseImpl(private val databaseURL: DatabaseURL) : DatabaseServiceMethods {
-    override fun getAllCompanies(): Iterable<Company> =
+    override fun getAllCompanies(): List<Company> =
         CompanyEntity
             .all()
             .map(CompanyEntity::toCompany)
@@ -28,13 +28,13 @@ class DatabaseImpl(private val databaseURL: DatabaseURL) : DatabaseServiceMethod
             .map(NewsPieceEntity::toNewsPiece)
             .firstOrNull()
 
-    override fun getNewsSummariesByCompany(company: Company): Iterable<NewsSummary> =
+    override fun getNewsSummariesByCompany(company: Company): List<NewsSummary> =
         NewsSummaryEntity
             .all()
             .filter { it.toNewsSummary().company.name == company.name }
             .map(NewsSummaryEntity::toNewsSummary)
 
-    override fun getNewsSummariesByNewsPiece(newsPiece: NewsPiece): Iterable<NewsSummary> =
+    override fun getNewsSummariesByNewsPiece(newsPiece: NewsPiece): List<NewsSummary> =
         NewsSummaryEntity
             .all()
             .filter { it.toNewsSummary().newsPiece.link == newsPiece.link }

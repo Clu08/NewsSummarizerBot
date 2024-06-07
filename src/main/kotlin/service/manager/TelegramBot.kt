@@ -123,9 +123,11 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
             }
         }
     }
+
     init {
         setBotCommands()
     }
+
     private fun setBotCommands() {
         telegramBot.setMyCommands(
             listOf(
@@ -170,6 +172,9 @@ class TelegramBot(supervisor: Supervisor, private val logger: LoggerService, pri
     }
 
     private fun logMessage(message: Message) {
-        logger.log(PrintInfo, "Bot text request: [${message.text}], chatId: ${message.chat.id}, author: ${message.authorSignature}")
+        logger.log(
+            PrintInfo,
+            "Bot text request: [${message.text}], chatId: ${message.chat.id}, author: ${message.authorSignature}"
+        )
     }
 }

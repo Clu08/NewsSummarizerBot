@@ -5,7 +5,6 @@ import io.github.vjames19.futures.jdk8.onComplete
 import io.sentry.Sentry
 import io.sentry.SpanStatus
 import prod.prog.actionProperties.Context
-import prod.prog.request.resultHandler.IgnoreErrorHandler
 import prod.prog.request.resultHandler.IgnoreHandler
 import prod.prog.request.resultHandler.ResultHandler
 import prod.prog.request.source.ConstantSource
@@ -91,7 +90,7 @@ data class Request<T, R>(
             source,
             IdTransformer(),
             IgnoreHandler(),
-            IgnoreErrorHandler(),
+            IgnoreHandler(),
             RequestContext()
         )
 
@@ -100,7 +99,7 @@ data class Request<T, R>(
                 ConstantSource(value),
                 transformer,
                 IgnoreHandler(),
-                IgnoreErrorHandler(),
+                IgnoreHandler(),
                 RequestContext()
             )
         }
